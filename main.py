@@ -1,5 +1,6 @@
 import sys
 import tkinter as tk
+import os
 
 window = tk.Tk()
 
@@ -9,5 +10,7 @@ except:
     label = tk.Label(text="No Args")
 
 label.pack()
+
+print(f'File path is : {os.path.abspath(__file__)}')
 
 window.mainloop()
