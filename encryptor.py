@@ -6,3 +6,7 @@ def encrypt(msg: str | bytes, cipher: Fernet, printKey=False) -> bytes:
     cipherText = cipher.encrypt(byteText)
 
     return cipherText
+
+
+def encrypt(file):
+    print("File Encrypt.")
