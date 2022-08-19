@@ -33,7 +33,7 @@ class Options_Page(Page):
         frm_btn = tk.Frame(master=self, relief=tk.FLAT,
                            borderwidth=0)
         frm_btn.grid(row=1, column=0, sticky="nsew")
-        frm_btn.rowconfigure(0, minsize=int(self.page_height/2))
+        # frm_btn.rowconfigure(0, minsize=int(self.page_height/2))
         frm_btn.columnconfigure([0, 1], minsize=int(self.page_width/2))
 
         frm_btn_encrypt = tk.Frame(
