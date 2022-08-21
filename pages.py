@@ -17,11 +17,15 @@ def setup_all_pages(main_window: tk.Widget, window_width: int, window_height: in
         master=main_window, width=window_width, height=window_height)
     page_collection["Decrypt"] = decryption_page
 
-    show_page(start_page)
+    show_page(page_to_show=start_page)
 
 
-def show_page(page: str):
-    page_collection[page].show()
+def show_page(current_page=None, page_to_show="Options"):
+    if current_page:
+        current_page.hide()
+
+    current_page = page_collection[page_to_show]
+    current_page.show()
 
 
 class Page(tk.Frame):
@@ -35,6 +39,9 @@ class Page(tk.Frame):
 
     def show(self):
         self.pack(side="top", fill="both", expand=True)
+
+    def hide(self):
+        self.pack_forget()
 
 
 class Options_Page(Page):
@@ -62,14 +69,14 @@ class Options_Page(Page):
             master=frm_btn, relief=tk.RAISED, borderwidth=0)
         frm_btn_encrypt.grid(row=0, column=0)
         btn_encrypt = tk.Button(master=frm_btn_encrypt,
-                                text="Encrypt", command=None, font=("Arial", 15), border=6, borderwidth=6)
+                                text="Encrypt", command=lambda: show_page(current_page=self, page_to_show="Encrypt"), font=("Arial", 15), border=6, borderwidth=6)
         btn_encrypt.pack(pady=20)
 
         frm_btn_decrypt = tk.Frame(
             master=frm_btn, relief=tk.RAISED, borderwidth=0)
         frm_btn_decrypt.grid(row=0, column=1)
         btn_decrypt = tk.Button(master=frm_btn_decrypt,
-                                text="Decrypt", command=None, font=("Arial", 15), border=6, borderwidth=6)
+                                text="Decrypt", command=lambda: show_page(current_page=self, page_to_show="Decrypt"), font=("Arial", 15), border=6, borderwidth=6)
         btn_decrypt.pack(pady=20)
 
 
@@ -81,7 +88,7 @@ class Encryption_Page(Page):
         frm_backbutton.place(relx=0, rely=0, anchor="nw")
 
         btn_back = tk.Button(master=frm_backbutton, text="Back",
-                             command=None, font=("Arial", 10, 'bold'), border=6, borderwidth=6)
+                             command=lambda: show_page(self, "Options"), font=("Arial", 10, 'bold'), border=6, borderwidth=6)
         btn_back.pack()
 
         rows = 3
@@ -136,7 +143,7 @@ class Decryption_Page(Page):
         frm_backbutton.place(relx=0, rely=0, anchor="nw")
 
         btn_back = tk.Button(master=frm_backbutton, text="Back",
-                             command=None, font=("Arial", 10, 'bold'), border=6, borderwidth=6)
+                             command=lambda: show_page(self, "Options"), font=("Arial", 10, 'bold'), border=6, borderwidth=6)
         btn_back.pack()
 
         frm_enterpassword = tk.Frame(
