@@ -1,4 +1,3 @@
-from doctest import master
 import tkinter as tk
 
 
@@ -58,31 +57,40 @@ class Encryption_Page(Page):
         frm_backbutton = tk.Frame(master=self, relief=tk.RAISED, borderwidth=0)
         frm_backbutton.place(relx=0, rely=0, anchor="nw")
 
-        btn_back = tk.Button(master=frm_backbutton, text="<=",
-                             command=None, font=("Arial", 10), border=6, borderwidth=6)
+        btn_back = tk.Button(master=frm_backbutton, text="Back",
+                             command=None, font=("Arial", 10, 'bold'), border=6, borderwidth=6)
         btn_back.pack()
 
         rows = 4
-        self.rowconfigure([0, 1, 2, 3], minsize=self.page_height/4)
-        self.columnconfigure(0, minsize=self.page_width)
+        row_height = int(self.page_height/rows)
+        column_width = int(self.page_width)
+        self.rowconfigure([0, 1, 2, 3], minsize=row_height)
+        self.columnconfigure(0, minsize=column_width)
 
-        frm_enterpassword = tk.Frame(
+        frm_createpassword = tk.Frame(
             master=self, relief=tk.FLAT, borderwidth=0)
-        # frm_enterpassword.grid(row=1, column=0, sticky="nsew")
-        frm_enterpassword.place(relx=0.5, rely=0.3, anchor=tk.CENTER)
-        ent_enterpassword = tk.Entry(master=frm_enterpassword)
-        ent_enterpassword.pack()
+        frm_createpassword.grid(row=1, column=0)
+        frm_createpassword.rowconfigure(0, minsize=row_height)
+        frm_createpassword.columnconfigure([0, 1], minsize=int(column_width/2))
+
+        lbl_createpassword = tk.Label(
+            master=frm_createpassword, text="Create Password:", fg="grey", font=("Arial", 12, 'bold'))
+        lbl_createpassword.grid(row=0, column=0, sticky="w")
+        ent_createpassword = tk.Entry(
+            master=frm_createpassword, width=15, font=("Arial", 12), show="*")
+        ent_createpassword.grid(row=0, column=1, sticky="e", padx=10)
 
         frm_confirmpassword = tk.Frame(
-            master=self, relief=tk.FLAT, borderwidth=0, bg="green")
-        frm_confirmpassword.grid(row=2, column=0, sticky="nsew")
+            master=self, relief=tk.FLAT, borderwidth=0)
+        frm_confirmpassword.grid(row=2, column=0)
+        frm_confirmpassword.rowconfigure(0, minsize=row_height)
+        frm_confirmpassword.columnconfigure(
+            [0, 1], minsize=int(column_width/2))
 
-        frm_btn_encrypt = tk.Frame(
-            master=self, relief=tk.FLAT, borderwidth=0, bg="blue")
-        frm_btn_encrypt.grid(row=3, column=0, sticky="nsew")
+        lbl_confirmpassword = tk.Label(
+            master=frm_confirmpassword, text="Confirm Password:", fg="grey", font=("Arial", 12, 'bold'))
+        lbl_confirmpassword.grid(row=0, column=0, sticky="w")
 
-    def infocus(self, entry_widget: tk.Entry):
-        entry_widget.config(show="")
-
-    def outfocus(self, entry_widget: tk.Entry):
-        entry_widget.config(show="")
+        ent_confirmpassword = tk.Entry(
+            master=frm_confirmpassword, width=15, font=("Arial", 12), show="*")
+        ent_confirmpassword.grid(row=0, column=1, sticky="e", padx=10)
