@@ -15,16 +15,7 @@ window.title("File Encryption")
 window.geometry(f"{windowWidth}x{windowHeight}")
 window.resizable(0, 0)
 
-# options_page = pages.Options_Page(
-#     master=window, width=windowWidth, height=windowHeight)
-# options_page.show()
-
-# encryption_page = pages.Encryption_Page(
-#     master=window, width=windowWidth, height=windowHeight)
-# encryption_page.show()
-
-decryption_page = pages.Decryption_Page(
-    master=window, width=windowWidth, height=windowHeight)
-decryption_page.show()
+pages.setup_all_pages(main_window=window,
+                      window_width=windowWidth, window_height=windowHeight, start_page="Options")
 
 window.mainloop()

@@ -1,5 +1,28 @@
 import tkinter as tk
 
+page_collection = {}
+
+
+def setup_all_pages(main_window: tk.Widget, window_width: int, window_height: int, start_page: str):
+
+    options_page = Options_Page(
+        master=main_window, width=window_width, height=window_height)
+    page_collection["Options"] = options_page
+
+    encryption_page = Encryption_Page(
+        master=main_window, width=window_width, height=window_height)
+    page_collection["Encrypt"] = encryption_page
+
+    decryption_page = Decryption_Page(
+        master=main_window, width=window_width, height=window_height)
+    page_collection["Decrypt"] = decryption_page
+
+    show_page(start_page)
+
+
+def show_page(page: str):
+    page_collection[page].show()
+
 
 class Page(tk.Frame):
     def __init__(self, *args, **kwargs):
@@ -8,10 +31,10 @@ class Page(tk.Frame):
         self.page_width = kwargs["width"]
         self.page_height = kwargs["height"]
 
-        self.pack(side="top", fill="both", expand=True)
+        self.pack_forget()
 
     def show(self):
-        self.lift()
+        self.pack(side="top", fill="both", expand=True)
 
 
 class Options_Page(Page):
@@ -121,7 +144,7 @@ class Decryption_Page(Page):
         frm_enterpassword.place(relx=0.5, rely=0.45, anchor=tk.CENTER)
 
         lbl_enterpassword = tk.Label(
-            master=frm_enterpassword, text="Enter Password:", font=("Arial", 12, 'bold'))
+            master=frm_enterpassword, text="Enter Password:", font=("Arial", 12, 'bold'), fg="grey")
         lbl_enterpassword.pack(side=tk.LEFT, padx=(0, 10))
 
         ent_enterpassword = tk.Entry(master=frm_enterpassword, width=15, font=(
