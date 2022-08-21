@@ -61,10 +61,12 @@ class Encryption_Page(Page):
                              command=None, font=("Arial", 10, 'bold'), border=6, borderwidth=6)
         btn_back.pack()
 
-        rows = 4
-        row_height = int(self.page_height/rows)
+        rows = 3
+        first_row_height = int(self.page_height/6)
+        row_height = int((self.page_height - first_row_height)/rows)
         column_width = int(self.page_width)
-        self.rowconfigure([0, 1, 2, 3], minsize=row_height)
+        self.rowconfigure(0, minsize=first_row_height)
+        self.rowconfigure([1, 2, 3], minsize=row_height)
         self.columnconfigure(0, minsize=column_width)
 
         frm_createpassword = tk.Frame(
@@ -77,7 +79,7 @@ class Encryption_Page(Page):
             master=frm_createpassword, text="Create Password:", fg="grey", font=("Arial", 12, 'bold'))
         lbl_createpassword.grid(row=0, column=0, sticky="w")
         ent_createpassword = tk.Entry(
-            master=frm_createpassword, width=15, font=("Arial", 12), show="*")
+            master=frm_createpassword, width=15, font=("Arial", 12), show="*", borderwidth=2)
         ent_createpassword.grid(row=0, column=1, sticky="e", padx=10)
 
         frm_confirmpassword = tk.Frame(
@@ -92,5 +94,12 @@ class Encryption_Page(Page):
         lbl_confirmpassword.grid(row=0, column=0, sticky="w")
 
         ent_confirmpassword = tk.Entry(
-            master=frm_confirmpassword, width=15, font=("Arial", 12), show="*")
+            master=frm_confirmpassword, width=15, font=("Arial", 12), show="*", borderwidth=2)
         ent_confirmpassword.grid(row=0, column=1, sticky="e", padx=10)
+
+        frm_btn_encrypt = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_btn_encrypt.grid(row=3, column=0)
+
+        btn_encrypt = tk.Button(master=frm_btn_encrypt,
+                                relief=tk.RAISED, border=6, borderwidth=6, text="Encrypt", font=("Arial", 12, "bold"))
+        btn_encrypt.pack(pady=(0, 10))
