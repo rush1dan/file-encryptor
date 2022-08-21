@@ -24,8 +24,7 @@ def show_page(current_page=None, page_to_show="Options"):
     if current_page:
         current_page.hide()
 
-    current_page = page_collection[page_to_show]
-    current_page.show()
+    page_collection[page_to_show].show()
 
 
 class Page(tk.Frame):
