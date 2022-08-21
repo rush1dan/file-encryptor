@@ -7,15 +7,20 @@ screenWidth = window.winfo_screenwidth()
 screenHeight = window.winfo_screenheight()
 screenAspectRatio = screenWidth / screenHeight
 
+windowAspectRatio = 1.5
 windowWidth = int(screenWidth / 6)
-windowHeight = int(windowWidth / screenAspectRatio)
+windowHeight = int(windowWidth / windowAspectRatio)
 
 window.title("File Encryption")
 window.geometry(f"{windowWidth}x{windowHeight}")
 window.resizable(0, 0)
 
-options_page = pages.Options_Page(
+# options_page = pages.Options_Page(
+#     master=window, width=windowWidth, height=windowHeight)
+# options_page.show()
+
+encryption_page = pages.Encryption_Page(
     master=window, width=windowWidth, height=windowHeight)
-options_page.show()
+encryption_page.show()
 
 window.mainloop()
