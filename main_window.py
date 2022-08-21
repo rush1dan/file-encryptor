@@ -19,8 +19,12 @@ window.resizable(0, 0)
 #     master=window, width=windowWidth, height=windowHeight)
 # options_page.show()
 
-encryption_page = pages.Encryption_Page(
+# encryption_page = pages.Encryption_Page(
+#     master=window, width=windowWidth, height=windowHeight)
+# encryption_page.show()
+
+decryption_page = pages.Decryption_Page(
     master=window, width=windowWidth, height=windowHeight)
-encryption_page.show()
+decryption_page.show()
 
 window.mainloop()

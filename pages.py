@@ -77,10 +77,10 @@ class Encryption_Page(Page):
 
         lbl_createpassword = tk.Label(
             master=frm_createpassword, text="Create Password:", fg="grey", font=("Arial", 12, 'bold'))
-        lbl_createpassword.grid(row=0, column=0, sticky="w")
+        lbl_createpassword.grid(row=0, column=0, sticky="w", padx=2)
         ent_createpassword = tk.Entry(
             master=frm_createpassword, width=15, font=("Arial", 12), show="*", borderwidth=2)
-        ent_createpassword.grid(row=0, column=1, sticky="e", padx=10)
+        ent_createpassword.grid(row=0, column=1, sticky="e", padx=(10, 10))
 
         frm_confirmpassword = tk.Frame(
             master=self, relief=tk.FLAT, borderwidth=0)
@@ -91,11 +91,11 @@ class Encryption_Page(Page):
 
         lbl_confirmpassword = tk.Label(
             master=frm_confirmpassword, text="Confirm Password:", fg="grey", font=("Arial", 12, 'bold'))
-        lbl_confirmpassword.grid(row=0, column=0, sticky="w")
+        lbl_confirmpassword.grid(row=0, column=0, sticky="w", padx=2)
 
         ent_confirmpassword = tk.Entry(
             master=frm_confirmpassword, width=15, font=("Arial", 12), show="*", borderwidth=2)
-        ent_confirmpassword.grid(row=0, column=1, sticky="e", padx=10)
+        ent_confirmpassword.grid(row=0, column=1, sticky="e", padx=(10, 10))
 
         frm_btn_encrypt = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
         frm_btn_encrypt.grid(row=3, column=0)
@@ -103,3 +103,34 @@ class Encryption_Page(Page):
         btn_encrypt = tk.Button(master=frm_btn_encrypt,
                                 relief=tk.RAISED, border=6, borderwidth=6, text="Encrypt", font=("Arial", 12, "bold"))
         btn_encrypt.pack(pady=(0, 10))
+
+
+class Decryption_Page(Page):
+    def __init__(self, *args, **kwargs):
+        Page.__init__(self, *args, **kwargs)
+
+        frm_backbutton = tk.Frame(master=self, relief=tk.RAISED, borderwidth=0)
+        frm_backbutton.place(relx=0, rely=0, anchor="nw")
+
+        btn_back = tk.Button(master=frm_backbutton, text="Back",
+                             command=None, font=("Arial", 10, 'bold'), border=6, borderwidth=6)
+        btn_back.pack()
+
+        frm_enterpassword = tk.Frame(
+            master=self, relief=tk.FLAT, borderwidth=0)
+        frm_enterpassword.place(relx=0.5, rely=0.45, anchor=tk.CENTER)
+
+        lbl_enterpassword = tk.Label(
+            master=frm_enterpassword, text="Enter Password:", font=("Arial", 12, 'bold'))
+        lbl_enterpassword.pack(side=tk.LEFT, padx=(0, 10))
+
+        ent_enterpassword = tk.Entry(master=frm_enterpassword, width=15, font=(
+            "Arial", 12), show="*", borderwidth=2)
+        ent_enterpassword.pack(side=tk.RIGHT, padx=(10, 0))
+
+        frm_btn_decrypt = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_btn_decrypt.place(relx=0.5, rely=0.8, anchor=tk.CENTER)
+
+        btn_decrypt = tk.Button(master=frm_btn_decrypt,
+                                relief=tk.RAISED, border=6, borderwidth=6, text="Decrypt", font=("Arial", 12, "bold"))
+        btn_decrypt.pack(pady=(0, 10))
