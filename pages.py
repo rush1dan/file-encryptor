@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 page_collection = {}
 
@@ -22,6 +23,7 @@ def setup_all_pages(main_window: tk.Widget, window_width: int, window_height: in
 
 def show_page(current_page=None, page_to_show="Options"):
     if current_page:
+        current_page.clear_entry()
         current_page.hide()
 
     page_collection[page_to_show].show()
@@ -38,9 +40,16 @@ class Page(tk.Frame):
 
     def show(self):
         self.pack(side="top", fill="both", expand=True)
+        self.primary_focus()
 
     def hide(self):
         self.pack_forget()
+
+    def clear_entry(self):
+        None
+
+    def primary_focus(self):
+        None
 
 
 class Options_Page(Page):
@@ -107,9 +116,11 @@ class Encryption_Page(Page):
         lbl_createpassword = tk.Label(
             master=frm_createpassword, text="Create Password:", fg="grey", font=("Arial", 12, 'bold'))
         lbl_createpassword.grid(row=0, column=0, sticky="w", padx=2)
-        ent_createpassword = tk.Entry(
+
+        self.ent_createpassword = tk.Entry(
             master=frm_createpassword, width=15, font=("Arial", 12), show="*", borderwidth=2)
-        ent_createpassword.grid(row=0, column=1, sticky="e", padx=(10, 10))
+        self.ent_createpassword.grid(
+            row=0, column=1, sticky="e", padx=(10, 10))
 
         frm_confirmpassword = tk.Frame(
             master=self, relief=tk.FLAT, borderwidth=0)
@@ -122,16 +133,38 @@ class Encryption_Page(Page):
             master=frm_confirmpassword, text="Confirm Password:", fg="grey", font=("Arial", 12, 'bold'))
         lbl_confirmpassword.grid(row=0, column=0, sticky="w", padx=2)
 
-        ent_confirmpassword = tk.Entry(
+        self.ent_confirmpassword = tk.Entry(
             master=frm_confirmpassword, width=15, font=("Arial", 12), show="*", borderwidth=2)
-        ent_confirmpassword.grid(row=0, column=1, sticky="e", padx=(10, 10))
+        self.ent_confirmpassword.grid(
+            row=0, column=1, sticky="e", padx=(10, 10))
 
         frm_btn_encrypt = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
         frm_btn_encrypt.grid(row=3, column=0)
 
         btn_encrypt = tk.Button(master=frm_btn_encrypt,
-                                relief=tk.RAISED, border=6, borderwidth=6, text="Encrypt", font=("Arial", 12, "bold"))
+                                relief=tk.RAISED, border=6, borderwidth=6, text="Encrypt", font=("Arial", 12, "bold"),
+                                command=lambda: self.encryption_process())
         btn_encrypt.pack(pady=(0, 10))
+
+    def primary_focus(self):
+        return self.ent_createpassword.focus_set()
+
+    def clear_entry(self):
+        self.ent_createpassword.delete(0, tk.END)
+        self.ent_confirmpassword.delete(0, tk.END)
+
+        self.ent_createpassword.focus()
+
+    def encryption_process(self):
+        created_password = self.ent_createpassword.get()
+        confirmed_password = self.ent_confirmpassword.get()
+
+        if len(created_password) < 6:
+            messagebox.showerror(title="Password Strength Error",
+                                 message="Password must be atleast 6 characters long.")
+        elif created_password != confirmed_password:
+            messagebox.showerror(title="Password Mismatch Error",
+                                 message="Password confirmation doesn't match.")
 
 
 class Decryption_Page(Page):
@@ -153,13 +186,30 @@ class Decryption_Page(Page):
             master=frm_enterpassword, text="Enter Password:", font=("Arial", 12, 'bold'), fg="grey")
         lbl_enterpassword.pack(side=tk.LEFT, padx=(0, 10))
 
-        ent_enterpassword = tk.Entry(master=frm_enterpassword, width=15, font=(
+        self.ent_enterpassword = tk.Entry(master=frm_enterpassword, width=15, font=(
             "Arial", 12), show="*", borderwidth=2)
-        ent_enterpassword.pack(side=tk.RIGHT, padx=(10, 0))
+        self.ent_enterpassword.focus_set()
+        self.ent_enterpassword.pack(side=tk.RIGHT, padx=(10, 0))
 
         frm_btn_decrypt = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
         frm_btn_decrypt.place(relx=0.5, rely=0.8, anchor=tk.CENTER)
 
         btn_decrypt = tk.Button(master=frm_btn_decrypt,
-                                relief=tk.RAISED, border=6, borderwidth=6, text="Decrypt", font=("Arial", 12, "bold"))
+                                relief=tk.RAISED, border=6, borderwidth=6, text="Decrypt", font=("Arial", 12, "bold"),
+                                command=lambda: self.decryption_process())
         btn_decrypt.pack(pady=(0, 10))
+
+    def primary_focus(self):
+        return self.ent_enterpassword.focus_set()
+
+    def clear_entry(self):
+        self.ent_enterpassword.delete(0, tk.END)
+
+        self.ent_enterpassword.focus()
+
+    def decryption_process(self):
+        entered_password = self.ent_enterpassword.get()
+
+        if len(entered_password) < 6:
+            messagebox.showerror(title="Invalid Password Error",
+                                 message="Invalid password entered.")
