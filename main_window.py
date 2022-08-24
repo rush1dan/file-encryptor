@@ -1,21 +1,23 @@
 import tkinter as tk
 import pages
 
-window = tk.Tk()
 
-screenWidth = window.winfo_screenwidth()
-screenHeight = window.winfo_screenheight()
-screenAspectRatio = screenWidth / screenHeight
+def main_window():
+    window = tk.Tk()
 
-windowAspectRatio = 1.5
-windowWidth = int(screenWidth / 6)
-windowHeight = int(windowWidth / windowAspectRatio)
+    screenWidth = window.winfo_screenwidth()
+    screenHeight = window.winfo_screenheight()
+    screenAspectRatio = screenWidth / screenHeight
 
-window.title("File Encryption")
-window.geometry(f"{windowWidth}x{windowHeight}")
-window.resizable(0, 0)
+    windowAspectRatio = 1.5
+    windowWidth = int(screenWidth / 6)
+    windowHeight = int(windowWidth / windowAspectRatio)
 
-pages.setup_all_pages(main_window=window,
-                      window_width=windowWidth, window_height=windowHeight, start_page="Options")
+    window.title("File Encryption")
+    window.geometry(f"{windowWidth}x{windowHeight}")
+    window.resizable(0, 0)
 
-window.mainloop()
+    pages.setup_all_pages(main_window=window,
+                          window_width=windowWidth, window_height=windowHeight, start_page="Options")
+
+    window.mainloop()

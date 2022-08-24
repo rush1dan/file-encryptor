@@ -4,30 +4,36 @@ import os
 import encryptor
 import decryptor
 from cryptography.fernet import Fernet
+import main_window
 
 
-window = tk.Tk()
+def run_from_right_click(arg):
+    main_window.main_window()
 
-try:
-    label = tk.Label(text=sys.argv[1])
-except:
-    label = tk.Label(text="No Args")
 
-label.pack()
+def run_as_standalone_application():
+    return None
 
-#print(f'File path is : {os.path.abspath(__file__)}')
 
-key = Fernet.generate_key()
-print(f'Encryption Key:\n {key}')
-cipher = Fernet(key)
+if __name__ == "__main__":
+    run_from_right_click("")
 
-inputMsg = input('Write Your Message:')
-print(f'Input Message:\n {inputMsg}')
+    # try:
+    #     run_from_right_click(sys.argv[1])
+    # except:
+    #     run_as_standalone_application()
 
-encryptedMsg = encryptor.encrypt(inputMsg, cipher)
-print(f'Encrypted Message:\n {encryptedMsg}')
+    #print(f'File path is : {os.path.abspath(__file__)}')
 
-decryptedMsg = decryptor.decrypt(encryptedMsg, cipher)
-print(f'Decrypted Message:\n {decryptedMsg}')
+    # key = Fernet.generate_key()
+    # print(f'Encryption Key:\n {key}')
+    # cipher = Fernet(key)
 
-window.mainloop()
+    # inputMsg = input('Write Your Message:')
+    # print(f'Input Message:\n {inputMsg}')
+
+    # encryptedMsg = encryptor.encrypt(inputMsg, cipher)
+    # print(f'Encrypted Message:\n {encryptedMsg}')
+
+    # decryptedMsg = decryptor.decrypt(encryptedMsg, cipher)
+    # print(f'Decrypted Message:\n {decryptedMsg}')
