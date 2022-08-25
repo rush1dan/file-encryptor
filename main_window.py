@@ -13,7 +13,7 @@ def main_window():
     windowWidth = int(screenWidth / 6)
     windowHeight = int(windowWidth / windowAspectRatio)
 
-    window.title("File Encryption")
+    window.title("Simple File Encryptor")
     window.geometry(f"{windowWidth}x{windowHeight}")
     window.resizable(0, 0)
 
