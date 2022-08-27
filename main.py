@@ -21,3 +21,5 @@ if __name__ == "__main__":
 # ***To Installer as .exe run command in the following way:***
 # pyinstaller --onefile --paths C:\PythonProjects\FileEnDecryptor\.venv\Lib\site-packages main.py
 # and rename the generated main.exe to SimpleFileEncryptor.exe
+
+# Right click context menu based encryption decryption working
