@@ -3,7 +3,7 @@ from keygen import get_key
 
 
 def encrypt_msg(msg: str | bytes, password: str) -> bytes:
-    encoded_text = msg.encode()
+    encoded_text = msg.encode() if type(msg) == str else msg
     cipher = Fernet(get_key(password=password))
     encrypted_text = cipher.encrypt(encoded_text)
 

@@ -32,7 +32,7 @@ def register_in_windows_registry(menu_name="", exefilepath=""):
                     winreg.CreateKey(menukey, command_name)
                     with winreg.OpenKey(menukey, command_name, 0, winreg.KEY_WRITE) as commandkey:
                         winreg.SetValueEx(
-                            commandkey, "", 0, winreg.REG_SZ, r"put\directory\here %1")
+                            commandkey, "", 0, winreg.REG_SZ, f"\"{exefilepath}\" %1")
     else:
         ctypes.windll.shell32.ShellExecuteW(
             None, "runas", sys.executable, " ".join(sys.argv), None, 1)
@@ -44,7 +44,8 @@ if __name__ == "__main__":
     app_dir = get_application_exe(os.path.dirname(os.path.realpath(__file__)))
 
     if app_dir != None:
-        register_in_windows_registry(menu_name="File Encryptor", dir=app_dir)
+        register_in_windows_registry(
+            menu_name="File Encryptor", exefilepath=app_dir)
     else:
         messagebox.showerror(title="Application Not Found Error",
                              message="FileEncryptor.exe not found. Did you move it somewhere else?")
