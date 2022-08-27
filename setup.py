@@ -41,12 +41,10 @@ def register_in_windows_registry(menu_name="", exefilepath=""):
 
 
 if __name__ == "__main__":
-    # app = get_application_exe(os.path.dirname(os.path.realpath(__file__)))
+    app_dir = get_application_exe(os.path.dirname(os.path.realpath(__file__)))
 
-    # if app != None:
-    #     register_in_windows_registry(app)
-    # else:
-    #     messagebox.showerror(title="Application Not Found Error",
-    #                          message="FileEncryptor.exe not found. Did you move it somewhere else?")
-
-    register_in_windows_registry(menu_name="a")
+    if app_dir != None:
+        register_in_windows_registry(menu_name="File Encryptor", dir=app_dir)
+    else:
+        messagebox.showerror(title="Application Not Found Error",
+                             message="FileEncryptor.exe not found. Did you move it somewhere else?")

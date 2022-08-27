@@ -1,5 +1,9 @@
+import sys
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import filedialog
+from encryptor import encrypt_file
+from decryptor import decrypt_file
 
 page_collection = {}
 
@@ -162,9 +166,18 @@ class Encryption_Page(Page):
         if len(created_password) < 6:
             messagebox.showerror(title="Password Strength Error",
                                  message="Password must be atleast 6 characters long.")
+            return
         elif created_password != confirmed_password:
             messagebox.showerror(title="Password Mismatch Error",
                                  message="Password confirmation doesn't match.")
+            return
+
+        try:
+            encrypted_content = encrypt_file(
+                sys.argv[1], password=created_password)
+            save_file(encrypted_content)
+        except FileNotFoundError:
+            print("No File Argument")
 
 
 class Decryption_Page(Page):
@@ -213,3 +226,20 @@ class Decryption_Page(Page):
         if len(entered_password) < 6:
             messagebox.showerror(title="Invalid Password Error",
                                  message="Invalid password entered.")
+            return
+        try:
+            decrypted_content = decrypt_file(
+                sys.argv[1], password=entered_password)
+            save_file(decrypted_content)
+        except FileNotFoundError:
+            print("No File Argument")
+
+
+def save_file(content: str):
+    file = filedialog.asksaveasfilename(
+        title="Save As", initialdir=".", defaultextension="*.txt", filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
+    try:
+        with open(file, "w") as f:
+            f.write(content)
+    except FileNotFoundError:
+        print("No File Path Selected")

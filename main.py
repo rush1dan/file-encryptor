@@ -12,16 +12,15 @@ def run_from_right_click(arg):
 
 
 def run_as_standalone_application():
+    print("Right Click Menu Not Configured Properly.")
     return None
 
 
 if __name__ == "__main__":
-    run_from_right_click("")
-
-    # try:
-    #     run_from_right_click(sys.argv[1])
-    # except:
-    #     run_as_standalone_application()
+    try:
+        run_from_right_click(sys.argv[1])
+    except:
+        run_as_standalone_application()
 
     #print(f'File path is : {os.path.abspath(__file__)}')
 
