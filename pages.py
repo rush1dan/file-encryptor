@@ -147,7 +147,7 @@ class Encryption_Page(Page):
 
         btn_encrypt = tk.Button(master=frm_btn_encrypt,
                                 relief=tk.RAISED, border=6, borderwidth=6, text="Encrypt", font=("Arial", 12, "bold"),
-                                command=lambda: self.encryption_process())
+                                command=self.encryption_process)
         btn_encrypt.pack(pady=(0, 10))
 
     def primary_focus(self):
@@ -175,7 +175,7 @@ class Encryption_Page(Page):
         try:
             encrypted_content = encrypt_file(
                 sys.argv[1], password=created_password)
-            save_file(encrypted_content)
+            save_file(encrypted_content, on_file_saved=self.master.destroy)
         except FileNotFoundError:
             print("No File Argument")
 
@@ -209,7 +209,7 @@ class Decryption_Page(Page):
 
         btn_decrypt = tk.Button(master=frm_btn_decrypt,
                                 relief=tk.RAISED, border=6, borderwidth=6, text="Decrypt", font=("Arial", 12, "bold"),
-                                command=lambda: self.decryption_process())
+                                command=self.decryption_process)
         btn_decrypt.pack(pady=(0, 10))
 
     def primary_focus(self):
@@ -230,16 +230,18 @@ class Decryption_Page(Page):
         try:
             decrypted_content = decrypt_file(
                 sys.argv[1], password=entered_password)
-            save_file(decrypted_content)
+            save_file(decrypted_content, on_file_saved=self.master.destroy)
         except FileNotFoundError:
             print("No File Argument")
 
 
-def save_file(content: str):
+def save_file(content: str, on_file_saved):
     file = filedialog.asksaveasfilename(
         title="Save As", initialdir=".", defaultextension="*.txt", filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
     try:
         with open(file, "w") as f:
             f.write(content)
+
+        on_file_saved()
     except FileNotFoundError:
         print("No File Path Selected")
