@@ -175,7 +175,8 @@ class Encryption_Page(Page):
         try:
             encrypted_content = encrypt_file(
                 sys.argv[1], password=created_password)
-            save_file(encrypted_content, on_file_saved=self.master.destroy)
+            save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
+                      on_file_saved=self.master.destroy)
         except FileNotFoundError:
             print("No File Argument")
 
@@ -230,14 +231,15 @@ class Decryption_Page(Page):
         try:
             decrypted_content = decrypt_file(
                 sys.argv[1], password=entered_password)
-            save_file(decrypted_content, on_file_saved=self.master.destroy)
+            save_file(decrypted_content, defaultextension="*.txt", filetypes=(("Text Files", "*.txt"), ("All files", "*.*")),
+                      on_file_saved=self.master.destroy)
         except FileNotFoundError:
             print("No File Argument")
 
 
-def save_file(content: str, on_file_saved):
+def save_file(content: str, defaultextension: str, filetypes: tuple, on_file_saved):
     file = filedialog.asksaveasfilename(
-        title="Save As", initialdir=".", defaultextension="*.txt", filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
+        title="Save As", initialdir=".", defaultextension=defaultextension, filetypes=filetypes)
     try:
         with open(file, "w") as f:
             f.write(content)
