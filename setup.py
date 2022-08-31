@@ -28,9 +28,11 @@ def register_in_windows_registry(encryption_menu_name="", decryption_menu_name="
 
             # Set Encryptor:
             # Configure It With Right Click Context Menu
-            with winreg.OpenKey(hkey, r'txtfile\shell') as subkey:
+            with winreg.OpenKey(hkey, r'*\shell') as subkey:
                 winreg.CreateKey(subkey, encryption_menu_name)
-                with winreg.OpenKey(subkey, encryption_menu_name) as encryption_menukey:
+                with winreg.OpenKey(subkey, encryption_menu_name, 0, winreg.KEY_WRITE) as encryption_menukey:
+                    winreg.SetValueEx(encryption_menukey, "AppliesTo",
+                                      0, winreg.REG_SZ, "NOT System.FileExtension:=.enc")
                     command_name = "command"
                     winreg.CreateKey(encryption_menukey, command_name)
                     with winreg.OpenKey(encryption_menukey, command_name, 0, winreg.KEY_WRITE) as commandkey:
