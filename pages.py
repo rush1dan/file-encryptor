@@ -96,12 +96,19 @@ class Encryption_Page(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
-        frm_backbutton = tk.Frame(master=self, relief=tk.RAISED, borderwidth=0)
-        frm_backbutton.place(relx=0, rely=0, anchor="nw")
+        # frm_backbutton = tk.Frame(master=self, relief=tk.RAISED, borderwidth=0)
+        # frm_backbutton.place(relx=0, rely=0, anchor="nw")
 
-        btn_back = tk.Button(master=frm_backbutton, text="Back",
-                             command=lambda: show_page(self, "Options"), font=("Arial", 10, 'bold'), border=6, borderwidth=6)
-        btn_back.pack()
+        # btn_back = tk.Button(master=frm_backbutton, text="Back",
+        #                      command=lambda: show_page(self, "Options"), font=("Arial", 10, 'bold'), border=6, borderwidth=6)
+        # btn_back.pack()
+
+        frm_processtitle = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_processtitle.place(relx=0.5, rely=0.03, anchor="n")
+
+        lbl_processtitle = tk.Label(
+            master=frm_processtitle, text="Encrypt File(s)", font=("Arial", 15, 'bold'))
+        lbl_processtitle.pack()
 
         rows = 3
         first_row_height = int(self.page_height/6)
@@ -185,12 +192,19 @@ class Decryption_Page(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
-        frm_backbutton = tk.Frame(master=self, relief=tk.RAISED, borderwidth=0)
-        frm_backbutton.place(relx=0, rely=0, anchor="nw")
+        # frm_backbutton = tk.Frame(master=self, relief=tk.RAISED, borderwidth=0)
+        # frm_backbutton.place(relx=0, rely=0, anchor="nw")
 
-        btn_back = tk.Button(master=frm_backbutton, text="Back",
-                             command=lambda: show_page(self, "Options"), font=("Arial", 10, 'bold'), border=6, borderwidth=6)
-        btn_back.pack()
+        # btn_back = tk.Button(master=frm_backbutton, text="Back",
+        #                      command=lambda: show_page(self, "Options"), font=("Arial", 10, 'bold'), border=6, borderwidth=6)
+        # btn_back.pack()
+
+        frm_processtitle = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_processtitle.place(relx=0.5, rely=0.1, anchor="n")
+
+        lbl_processtitle = tk.Label(
+            master=frm_processtitle, text="Decrypt File(s)", font=("Arial", 15, 'bold'))
+        lbl_processtitle.pack()
 
         frm_enterpassword = tk.Frame(
             master=self, relief=tk.FLAT, borderwidth=0)
@@ -211,7 +225,7 @@ class Decryption_Page(Page):
         btn_decrypt = tk.Button(master=frm_btn_decrypt,
                                 relief=tk.RAISED, border=6, borderwidth=6, text="Decrypt", font=("Arial", 12, "bold"),
                                 command=self.decryption_process)
-        btn_decrypt.pack(pady=(0, 10))
+        btn_decrypt.pack(pady=(0, 0))
 
     def primary_focus(self):
         return self.ent_enterpassword.focus_set()

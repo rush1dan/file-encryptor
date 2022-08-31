@@ -1,9 +1,19 @@
+from enum import Enum, IntEnum
 import sys
 import main_window
+import re
+
+
+class OperationMode(IntEnum):
+    ENCRYPTION = 0,
+    DECRYPTION = 1
 
 
 def run_from_right_click(arg):
-    main_window.main_window()
+    if re.search(r'\.enc$', arg):
+        main_window.main_window(OperationMode.DECRYPTION)
+    else:
+        main_window.main_window(OperationMode.ENCRYPTION)
 
 
 def run_as_standalone_application():
