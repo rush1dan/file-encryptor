@@ -251,7 +251,7 @@ class Decryption_Page(Page):
             print("No File Argument")
 
 
-def save_file(content: str | bytes, defaultextension: str, filetypes: tuple, suggested_path: str = "", on_file_saved=None):
+def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested_path: str = "", on_file_saved=None):
     file = filedialog.asksaveasfilename(
         title="Save As", initialdir=suggested_path if len(suggested_path) > 0 else ".", defaultextension=defaultextension, filetypes=filetypes)
     try:
