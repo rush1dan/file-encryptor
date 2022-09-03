@@ -251,13 +251,14 @@ class Decryption_Page(Page):
             print("No File Argument")
 
 
-def save_file(content: str, defaultextension: str, filetypes: tuple, on_file_saved):
+def save_file(content: str | bytes, defaultextension: str, filetypes: tuple, suggested_path: str = "", on_file_saved=None):
     file = filedialog.asksaveasfilename(
-        title="Save As", initialdir=".", defaultextension=defaultextension, filetypes=filetypes)
+        title="Save As", initialdir=suggested_path if len(suggested_path) > 0 else ".", defaultextension=defaultextension, filetypes=filetypes)
     try:
-        with open(file, "w") as f:
+        with open(file, "wb") as f:
             f.write(content)
 
-        on_file_saved()
+        if on_file_saved != None:
+            on_file_saved()
     except FileNotFoundError:
         print("No File Path Selected")

@@ -10,12 +10,12 @@ def encrypt_msg(msg: str | bytes, password: str) -> bytes:
     return encrypted_text
 
 
-def encrypt_file(file, password: str) -> str:
+def encrypt_file(file, password: str) -> bytes:
     try:
         with open(file, 'rb') as f:
             file_content = f.read()
             encrypted_content = encrypt_msg(file_content, password=password)
 
-            return encrypted_content.decode('utf-8')
+            return encrypted_content
     except FileNotFoundError:
         print("File Not Found")
