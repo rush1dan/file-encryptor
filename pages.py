@@ -4,6 +4,7 @@ from tkinter import messagebox
 from tkinter import filedialog
 from encryptor import encrypt_file
 from decryptor import decrypt_file
+import utils
 
 page_collection = {}
 
@@ -183,7 +184,7 @@ class Encryption_Page(Page):
             encrypted_content = encrypt_file(
                 sys.argv[1], password=created_password)
             save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
-                      on_file_saved=self.master.destroy)
+                      suggested_filename=utils.get_file_name(sys.argv[1])+".enc", on_saving_initiated=self.master.destroy)
         except FileNotFoundError:
             print("No File Argument")
 
@@ -246,14 +247,20 @@ class Decryption_Page(Page):
             decrypted_content = decrypt_file(
                 sys.argv[1], password=entered_password)
             save_file(decrypted_content, defaultextension="*.txt", filetypes=(("Text Files", "*.txt"), ("All files", "*.*")),
-                      on_file_saved=self.master.destroy)
+                      suggested_filename=utils.get_file_name(sys.argv[1], False), on_saving_initiated=self.master.destroy)
         except FileNotFoundError:
             print("No File Argument")
 
 
-def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested_path: str = "", on_file_saved=None):
+def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested_path=None, suggested_filename=None, on_saving_initiated=None, on_file_saved=None):
     file = filedialog.asksaveasfilename(
-        title="Save As", initialdir=suggested_path if len(suggested_path) > 0 else ".", defaultextension=defaultextension, filetypes=filetypes)
+        title="Save As", initialdir=suggested_path if suggested_path != None else ".", initialfile=suggested_filename if suggested_filename != None else "",
+        defaultextension=defaultextension, filetypes=filetypes)
+
+    if file:
+        if on_saving_initiated != None:
+            on_saving_initiated()
+
     try:
         with open(file, "wb") as f:
             f.write(content)
