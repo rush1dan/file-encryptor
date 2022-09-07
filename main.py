@@ -1,7 +1,10 @@
-from enum import Enum, IntEnum
+from enum import IntEnum
 import sys
+import traceback
 import main_window
 import re
+import os
+import time
 
 
 class OperationMode(IntEnum):
@@ -23,9 +26,43 @@ def run_as_standalone_application():
 
 if __name__ == "__main__":
     try:
-        run_from_right_click(sys.argv[1])
-    except:
-        run_as_standalone_application()
+        # Run Single Instance even for multiple files:
+        if not os.path.exists("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt"):
+            if not os.path.exists("C:\\PythonProjects\\FileEnDecryptor\\Data"):
+                os.makedirs("C:\\PythonProjects\\FileEnDecryptor\\Data")
+                open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", 'w').close()
+
+        first_instance = False
+
+        with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "r+", buffering=1) as file_init:
+            lines = file_init.readlines()
+            if len(lines) == 0:  # File not created yet, hence no instance running
+                # Write the file path of the file selected
+                file_init.seek(0, 2)
+                file_init.write(sys.argv[1] + "\n")
+                file_init.flush()
+
+                first_instance = True
+            else:  # File already created, hence one instance running
+                file_init.seek(0, 2)
+                file_init.write(sys.argv[1] + "\n")
+                file_init.flush()
+
+        if first_instance:
+            #Wait for other files to conclude writing to the initializer:
+            time.sleep(1.0)
+            files = []
+            with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "r") as file_init:
+                files = file_init.readlines()
+            print(files)
+            # Run the program:
+            try:
+                run_from_right_click(files[0])
+            except:
+                run_as_standalone_application()
+    except Exception as ex:
+        traceback.print_exc()
+        input("Press Enter To Exit...")
 
 
 # ***To Installer as .exe run command in the following way:***
