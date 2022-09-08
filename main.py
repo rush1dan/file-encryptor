@@ -51,15 +51,23 @@ if __name__ == "__main__":
         if first_instance:
             #Wait for other files to conclude writing to the initializer:
             time.sleep(1.0)
+            #Read all file paths from init file and store in list:
             files = []
             with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "r") as file_init:
                 files = file_init.readlines()
+            
             print(files)
+
+            #Erase the file for next session:
+            with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "w") as file_init:
+                file_init.write("")
+            
             # Run the program:
             try:
                 run_from_right_click(files[0])
             except:
                 run_as_standalone_application()
+                
     except Exception as ex:
         traceback.print_exc()
         input("Press Enter To Exit...")

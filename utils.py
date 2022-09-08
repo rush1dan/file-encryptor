@@ -20,3 +20,22 @@ def get_file_extension(filename: str):
         if ch == ".":
             break
     return extension_rev[::-1]
+
+
+def get_original_file_extension(file_path: str) -> str:
+    with open(file_path, "rb") as file:
+        file_content = file.read()
+        extension_rev = b""
+        for i in range(len(file_content) - 1, -1, -1):
+            ch = file_content[i]
+            extension_rev += ch
+            if ch == ".":
+                break
+        return extension_rev[::-1].decode()
+
+
+def remove_file_extension(text: str | bytes) -> str | bytes:
+    for i in range(len(text) - 1, -1, -1):
+        ch = text[i]
+        if ch == (b"." if type(text) == bytes else "."):
+            return text[:i]

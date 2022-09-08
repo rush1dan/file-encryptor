@@ -1,5 +1,6 @@
 from cryptography.fernet import Fernet
 from keygen import get_key
+import utils
 
 
 def decrypt_msg(encrypted_msg: str | bytes, password: str) -> bytes:
@@ -11,11 +12,14 @@ def decrypt_msg(encrypted_msg: str | bytes, password: str) -> bytes:
     return decrypted_text
 
 
-def decrypt_file(file, password: str) -> bytes:
+def decrypt_file(file, password: str, remove_extension = False) -> bytes:
     try:
         with open(file, 'rb') as f:
             file_content = f.read()
             decrypted_content = decrypt_msg(file_content, password=password)
+
+            if remove_extension:
+                decrypted_content = utils.remove_file_extension(decrypted_content)
 
             return decrypted_content
     except FileNotFoundError:
