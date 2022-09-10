@@ -48,7 +48,7 @@ def register_in_windows_registry(encryption_menu_name="", decryption_menu_name="
                 winreg.CreateKey(encrypted_file_type_key, "shell")
                 with winreg.OpenKey(encrypted_file_type_key, "shell") as shellkey:
                     winreg.CreateKey(shellkey, decryption_menu_name)
-                    with winreg.OpenKey(shellkey, decryption_menu_name) as decryption_menukey:
+                    with winreg.OpenKey(shellkey, decryption_menu_name, 0, winreg.KEY_WRITE) as decryption_menukey:
                         winreg.SetValueEx(decryption_menukey, "", 0, winreg.REG_SZ, "Decrypt File(s)")
                         command_name = "command"
                         winreg.CreateKey(decryption_menukey, command_name)

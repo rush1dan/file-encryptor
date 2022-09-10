@@ -44,7 +44,7 @@ if __name__ == "__main__":
             time.sleep(1.0)
             #Read all file paths from init file and store in list:
             with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "r") as file_init:
-                selected_files = file_init.readlines()
+                selected_files = [line.strip() for line in file_init.readlines()] 
             
             data.set_data(operation_arg=sys.argv[1], files=selected_files)
 

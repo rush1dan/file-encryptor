@@ -244,9 +244,10 @@ class Decryption_Page(Page):
                                  message="Invalid password entered.")
             return
         try:
-            og_file_extension = utils.get_original_file_extension(encrypted_filepath=selected_files[0])
-            decrypted_content = decrypt_file(selected_files[0], password=entered_password, remove_extension=True)
-            save_file(decrypted_content, defaultextension=f"*{og_file_extension}", filetypes=(("All files", "*.*")),
+            decrypted_content = decrypt_file(selected_files[0], password=entered_password, remove_extension=False)
+            og_file_extension = utils.get_original_file_extension(decrypted_content)
+            decrypted_content = utils.remove_file_extension(decrypted_content)
+            save_file(decrypted_content, defaultextension=f"*{og_file_extension}", filetypes=(("Decrypted Files", f"*{og_file_extension}"), ("All files", "*.*")),
                       suggested_filename=utils.get_file_name(selected_files[0], False), 
                       on_saving_initiated=self.master.destroy)
         except FileNotFoundError:

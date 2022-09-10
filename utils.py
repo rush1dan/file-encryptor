@@ -22,20 +22,23 @@ def get_file_extension(filename: str):
     return extension_rev[::-1]
 
 
-def get_original_file_extension(encrypted_filepath: str) -> str:
-    with open(encrypted_filepath, "rb") as file:
-        file_content = file.read()
-        extension_rev = b""
-        for i in range(len(file_content) - 1, -1, -1):
-            ch = file_content[i]
-            extension_rev += ch
-            if ch == b".":
-                break
-        return extension_rev[::-1].decode()
+def get_original_file_extension(decrypted_content: bytes) -> str:
+    extension_rev = b""
+    for i in range(len(decrypted_content) - 1, -1, -1):
+        ch_int = decrypted_content[i]
+        ch_byte = int_to_bytes(ch_int)
+        extension_rev += ch_byte
+        if ch_byte == b".":
+            break
+    return extension_rev[::-1].decode()
 
 
-def remove_file_extension(text: str | bytes) -> str | bytes:
-    for i in range(len(text) - 1, -1, -1):
-        ch = text[i]
-        if ch == (b"." if type(text) == bytes else "."):
-            return text[:i]
+def remove_file_extension(decrypted_content: bytes) -> bytes:
+    for i in range(len(decrypted_content) - 1, -1, -1):
+        ch_int = decrypted_content[i]
+        ch_byte = int_to_bytes(ch_int)
+        if ch_byte == b".":
+            return decrypted_content[:i]
+
+def int_to_bytes(x: int) -> bytes:
+    return x.to_bytes((x.bit_length() + 7) // 8, 'big')
