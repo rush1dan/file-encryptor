@@ -10,13 +10,13 @@ def encrypt_msg(msg: str | bytes, password: str) -> bytes:
     return encrypted_text
 
 
-def encrypt_file(file, password: str, add_extension=False) -> bytes:
+def encrypt_file(filepath: str, password: str, add_extension=False) -> bytes:
     try:
-        with open(file, 'rb') as f:
+        with open(filepath, 'rb') as f:
             file_content = f.read()
 
             if add_extension:
-                file_content += utils.get_file_extension(file).encode('utf-8')
+                file_content += utils.get_file_extension(filepath).encode()
 
             encrypted_content = encrypt_msg(file_content, password=password)
 

@@ -1,22 +1,21 @@
 from enum import IntEnum
+from importlib import reload
 import sys
 import traceback
 import main_window
-import re
 import os
 import time
 
+operation_mode = None
+selected_files = []
 
 class OperationMode(IntEnum):
     ENCRYPTION = 0,
     DECRYPTION = 1
 
 
-def run_from_right_click(arg):
-    if re.search(r'\.enc$', arg):
-        main_window.main_window(OperationMode.DECRYPTION)
-    else:
-        main_window.main_window(OperationMode.ENCRYPTION)
+def run_from_right_click():
+    main_window.main_window()
 
 
 def run_as_standalone_application():
@@ -34,37 +33,50 @@ if __name__ == "__main__":
 
         first_instance = False
 
+        print(sys.argv[1])
+        print(sys.argv[2])
+
         with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "r+", buffering=1) as file_init:
             lines = file_init.readlines()
             if len(lines) == 0:  # File not created yet, hence no instance running
                 # Write the file path of the file selected
                 file_init.seek(0, 2)
-                file_init.write(sys.argv[1] + "\n")
+                file_init.write(sys.argv[2] + "\n")
                 file_init.flush()
 
                 first_instance = True
+
+                match sys.argv[1]:
+                    case "--encrypt":
+                        operation_mode = OperationMode.ENCRYPTION
+                    case "--decrypt":
+                        operation_mode = OperationMode.DECRYPTION
+                    case _:
+                        print("Operation mode argument not passed properly.")
+                
+                print(operation_mode)
+
             else:  # File already created, hence one instance running
                 file_init.seek(0, 2)
-                file_init.write(sys.argv[1] + "\n")
+                file_init.write(sys.argv[2] + "\n")
                 file_init.flush()
 
         if first_instance:
             #Wait for other files to conclude writing to the initializer:
             time.sleep(1.0)
             #Read all file paths from init file and store in list:
-            files = []
             with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "r") as file_init:
-                files = file_init.readlines()
+                selected_files = file_init.readlines()
             
-            print(files)
+            print(selected_files)
 
             #Erase the file for next session:
             with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "w") as file_init:
                 file_init.write("")
-            
+
             # Run the program:
             try:
-                run_from_right_click(files[0])
+                run_from_right_click()
             except:
                 run_as_standalone_application()
                 

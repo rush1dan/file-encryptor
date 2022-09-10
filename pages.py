@@ -1,10 +1,10 @@
-import sys
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
 from encryptor import encrypt_file
 from decryptor import decrypt_file
 import utils
+from main import selected_files
 
 page_collection = {}
 
@@ -181,10 +181,10 @@ class Encryption_Page(Page):
             return
 
         try:
-            encrypted_content = encrypt_file(
-                sys.argv[1], password=created_password)
+            encrypted_content = encrypt_file(selected_files[0], password=created_password, add_extension=True)
             save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
-                      suggested_filename=utils.get_file_name(sys.argv[1])+".enc", on_saving_initiated=self.master.destroy)
+                      suggested_filename=utils.get_file_name(selected_files[0])+".enc", 
+                      on_saving_initiated=self.master.destroy)
         except FileNotFoundError:
             print("No File Argument")
 
@@ -244,18 +244,20 @@ class Decryption_Page(Page):
                                  message="Invalid password entered.")
             return
         try:
-            decrypted_content = decrypt_file(
-                sys.argv[1], password=entered_password)
-            save_file(decrypted_content, defaultextension="*.txt", filetypes=(("Text Files", "*.txt"), ("All files", "*.*")),
-                      suggested_filename=utils.get_file_name(sys.argv[1], False), on_saving_initiated=self.master.destroy)
+            og_file_extension = utils.get_original_file_extension(encrypted_filepath=selected_files[0])
+            decrypted_content = decrypt_file(selected_files[0], password=entered_password, remove_extension=True)
+            save_file(decrypted_content, defaultextension=f"*{og_file_extension}", filetypes=(("All files", "*.*")),
+                      suggested_filename=utils.get_file_name(selected_files[0], False), 
+                      on_saving_initiated=self.master.destroy)
         except FileNotFoundError:
             print("No File Argument")
 
 
-def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested_path=None, suggested_filename=None, on_saving_initiated=None, on_file_saved=None):
-    file = filedialog.asksaveasfilename(
-        title="Save As", initialdir=suggested_path if suggested_path != None else ".", initialfile=suggested_filename if suggested_filename != None else "",
-        defaultextension=defaultextension, filetypes=filetypes)
+def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested_path=None, suggested_filename=None, 
+              on_saving_initiated=None, on_file_saved=None, on_cancelled=None):
+    file = filedialog.asksaveasfilename(title="Save As", initialdir=suggested_path if suggested_path != None else ".", 
+                                        initialfile=suggested_filename if suggested_filename != None else "", 
+                                        defaultextension=defaultextension, filetypes=filetypes)
 
     if file:
         if on_saving_initiated != None:
@@ -269,3 +271,5 @@ def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested
             on_file_saved()
     except FileNotFoundError:
         print("No File Path Selected")
+        if on_cancelled != None:
+            on_cancelled()

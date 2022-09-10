@@ -22,14 +22,14 @@ def get_file_extension(filename: str):
     return extension_rev[::-1]
 
 
-def get_original_file_extension(file_path: str) -> str:
-    with open(file_path, "rb") as file:
+def get_original_file_extension(encrypted_filepath: str) -> str:
+    with open(encrypted_filepath, "rb") as file:
         file_content = file.read()
         extension_rev = b""
         for i in range(len(file_content) - 1, -1, -1):
             ch = file_content[i]
             extension_rev += ch
-            if ch == ".":
+            if ch == b".":
                 break
         return extension_rev[::-1].decode()
 

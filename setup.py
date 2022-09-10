@@ -15,7 +15,7 @@ def is_admin():
 def get_application_exe(dir):
     for dir_name, sub_dir_list, file_list in os.walk(dir):
         for file_name in file_list:
-            if file_name == "SimpleFileEncryptor.exe":
+            if file_name == "main.exe":     #Replace with the actual name of the application
                 return dir_name + "\\" + file_name
 
     return None
