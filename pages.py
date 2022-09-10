@@ -4,7 +4,7 @@ from tkinter import filedialog
 from encryptor import encrypt_file
 from decryptor import decrypt_file
 import utils
-from main import selected_files
+from data import selected_files
 
 page_collection = {}
 

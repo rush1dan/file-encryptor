@@ -1,8 +1,4 @@
 import tkinter as tk
-from main import OperationMode
-from main import operation_mode
-from main import selected_files
-import pages
 
 
 def main_window():
@@ -19,10 +15,11 @@ def main_window():
     window.title("Simple File Encryptor")
     window.geometry(f"{windowWidth}x{windowHeight}")
     window.resizable(0, 0)
+    
+    import data
+    import pages
 
-    print(operation_mode)
-    print(selected_files)
-    initial_page = "Encrypt" if operation_mode == OperationMode.ENCRYPTION else "Decrypt"
+    initial_page = "Encrypt" if data.operation_mode == data.OperationMode.ENCRYPTION else "Decrypt"
     pages.setup_all_pages(main_window=window,
                           window_width=windowWidth, window_height=windowHeight, start_page=initial_page)
 

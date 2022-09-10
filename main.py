@@ -1,18 +1,9 @@
-from enum import IntEnum
-from importlib import reload
 import sys
 import traceback
+import data
 import main_window
 import os
 import time
-
-operation_mode = None
-selected_files = []
-
-class OperationMode(IntEnum):
-    ENCRYPTION = 0,
-    DECRYPTION = 1
-
 
 def run_from_right_click():
     main_window.main_window()
@@ -33,9 +24,6 @@ if __name__ == "__main__":
 
         first_instance = False
 
-        print(sys.argv[1])
-        print(sys.argv[2])
-
         with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "r+", buffering=1) as file_init:
             lines = file_init.readlines()
             if len(lines) == 0:  # File not created yet, hence no instance running
@@ -45,16 +33,6 @@ if __name__ == "__main__":
                 file_init.flush()
 
                 first_instance = True
-
-                match sys.argv[1]:
-                    case "--encrypt":
-                        operation_mode = OperationMode.ENCRYPTION
-                    case "--decrypt":
-                        operation_mode = OperationMode.DECRYPTION
-                    case _:
-                        print("Operation mode argument not passed properly.")
-                
-                print(operation_mode)
 
             else:  # File already created, hence one instance running
                 file_init.seek(0, 2)
@@ -68,7 +46,7 @@ if __name__ == "__main__":
             with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "r") as file_init:
                 selected_files = file_init.readlines()
             
-            print(selected_files)
+            data.set_data(operation_arg=sys.argv[1], files=selected_files)
 
             #Erase the file for next session:
             with open("C:\\PythonProjects\\FileEnDecryptor\\Data\\Initialization.txt", "w") as file_init:
