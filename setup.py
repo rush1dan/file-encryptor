@@ -36,7 +36,7 @@ def register_in_windows_registry(encryption_menu_name="", decryption_menu_name="
                     command_name = "command"
                     winreg.CreateKey(encryption_menukey, command_name)
                     with winreg.OpenKey(encryption_menukey, command_name, 0, winreg.KEY_WRITE) as commandkey:
-                        winreg.SetValueEx(commandkey, "", 0, winreg.REG_SZ, f"\"{exefilepath}\" --encrypt %1")
+                        winreg.SetValueEx(commandkey, "", 0, winreg.REG_SZ, f"\"{exefilepath}\" --encrypt \"%1\"")
 
             # Set Decryptor:
             encrypted_file_extension = ".enc"
@@ -53,7 +53,7 @@ def register_in_windows_registry(encryption_menu_name="", decryption_menu_name="
                         command_name = "command"
                         winreg.CreateKey(decryption_menukey, command_name)
                         with winreg.OpenKey(decryption_menukey, command_name, 0, winreg.KEY_WRITE) as commandkey:
-                            winreg.SetValueEx(commandkey, "", 0, winreg.REG_SZ, f"\"{exefilepath}\" --decrypt %1")
+                            winreg.SetValueEx(commandkey, "", 0, winreg.REG_SZ, f"\"{exefilepath}\" --decrypt \"%1\"")
 
             # Create New Encrypted File Extension in Registry and register newly created Encrypted File Type under it
             # and configure the extension to behave similar to a .txt extension
