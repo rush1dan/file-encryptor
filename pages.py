@@ -183,14 +183,14 @@ class Encryption_Page(Page):
 
         try:
             selected_file_count = len(selected_files)
-            if selected_file_count == 1:
+            if selected_file_count == 1:    #If only one file selected, then ask for save location
                 encrypted_content = encrypt_file_content(selected_files[0], password=created_password, add_extension=True)
                 save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
                         suggested_filename=utils.get_file_name(selected_files[0])+".enc", 
                         on_saving_initiated=self.master.destroy)
             else:
                 self.master.destroy()   #Close The Password Entry Field Window
-                
+
                 encrypt_files(selected_files, password=created_password, add_extension=True, 
                             on_file_encrypted=lambda i: print(f"{i}/{selected_file_count} files encrypted."))
         except FileNotFoundError:
