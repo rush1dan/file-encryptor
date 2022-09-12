@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
 from encryptor import encrypt_file_content
+from encryptor import encrypt_files
 from decryptor import decrypt_file_content
 import utils
 from data import selected_files
@@ -181,10 +182,17 @@ class Encryption_Page(Page):
             return
 
         try:
-            encrypted_content = encrypt_file_content(selected_files[0], password=created_password, add_extension=True)
-            save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
-                      suggested_filename=utils.get_file_name(selected_files[0])+".enc", 
-                      on_saving_initiated=self.master.destroy)
+            selected_file_count = len(selected_files)
+            if selected_file_count == 1:
+                encrypted_content = encrypt_file_content(selected_files[0], password=created_password, add_extension=True)
+                save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
+                        suggested_filename=utils.get_file_name(selected_files[0])+".enc", 
+                        on_saving_initiated=self.master.destroy)
+            else:
+                self.master.destroy()   #Close The Password Entry Field Window
+                
+                encrypt_files(selected_files, password=created_password, add_extension=True, 
+                            on_file_encrypted=lambda i: print(f"{i}/{selected_file_count} files encrypted."))
         except FileNotFoundError:
             print("No File Argument")
 

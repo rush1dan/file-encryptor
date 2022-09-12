@@ -1,4 +1,4 @@
-
+import os
 
 def get_file_name(filepath: str, with_extension: bool = True):
     filename_rev = ""
@@ -42,3 +42,6 @@ def remove_file_extension(decrypted_content: bytes) -> bytes:
 
 def int_to_bytes(x: int) -> bytes:
     return x.to_bytes((x.bit_length() + 7) // 8, 'big')
+
+def get_file_directory(filepath: str) -> str:
+    return os.path.dirname(os.path.realpath(filepath))
