@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
-from encryptor import encrypt_file
-from decryptor import decrypt_file
+from encryptor import encrypt_file_content
+from decryptor import decrypt_file_content
 import utils
 from data import selected_files
 
@@ -181,7 +181,7 @@ class Encryption_Page(Page):
             return
 
         try:
-            encrypted_content = encrypt_file(selected_files[0], password=created_password, add_extension=True)
+            encrypted_content = encrypt_file_content(selected_files[0], password=created_password, add_extension=True)
             save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
                       suggested_filename=utils.get_file_name(selected_files[0])+".enc", 
                       on_saving_initiated=self.master.destroy)
@@ -244,7 +244,7 @@ class Decryption_Page(Page):
                                  message="Invalid password entered.")
             return
         try:
-            decrypted_content = decrypt_file(selected_files[0], password=entered_password, remove_extension=False)
+            decrypted_content = decrypt_file_content(selected_files[0], password=entered_password, remove_extension=False)
             og_file_extension = utils.get_original_file_extension(decrypted_content)
             decrypted_content = utils.remove_file_extension(decrypted_content)
             save_file(decrypted_content, defaultextension=f"*{og_file_extension}", filetypes=(("Decrypted Files", f"*{og_file_extension}"), ("All files", "*.*")),

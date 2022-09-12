@@ -10,7 +10,7 @@ def encrypt_msg(msg: str | bytes, password: str) -> bytes:
     return encrypted_text
 
 
-def encrypt_file(filepath: str, password: str, add_extension=False) -> bytes:
+def encrypt_file_content(filepath: str, password: str, add_extension=False) -> bytes:
     try:
         with open(filepath, 'rb') as f:
             file_content = f.read()

@@ -12,7 +12,7 @@ def decrypt_msg(encrypted_msg: str | bytes, password: str) -> bytes:
     return decrypted_text
 
 
-def decrypt_file(filepath: str, password: str, remove_extension = False) -> bytes:
+def decrypt_file_content(filepath: str, password: str, remove_extension = False) -> bytes:
     try:
         with open(filepath, 'rb') as f:
             file_content = f.read()
