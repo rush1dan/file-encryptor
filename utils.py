@@ -23,6 +23,9 @@ def get_file_extension(filename: str):
 
 
 def get_original_file_extension(decrypted_content: bytes) -> str:
+
+    """ Extracts the embedded file extension """
+
     extension_rev = b""
     for i in range(len(decrypted_content) - 1, -1, -1):
         ch_int = decrypted_content[i]
@@ -34,6 +37,9 @@ def get_original_file_extension(decrypted_content: bytes) -> str:
 
 
 def remove_file_extension(decrypted_content: bytes) -> bytes:
+
+    """ Removes the embedded file extension """
+
     for i in range(len(decrypted_content) - 1, -1, -1):
         ch_int = decrypted_content[i]
         ch_byte = int_to_bytes(ch_int)

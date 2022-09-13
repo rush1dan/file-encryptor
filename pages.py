@@ -4,6 +4,7 @@ from tkinter import filedialog
 from encryptor import encrypt_file_content
 from encryptor import encrypt_files
 from decryptor import decrypt_file_content
+from decryptor import decrypt_files
 import utils
 from data import selected_files
 
@@ -252,12 +253,19 @@ class Decryption_Page(Page):
                                  message="Invalid password entered.")
             return
         try:
-            decrypted_content = decrypt_file_content(selected_files[0], password=entered_password, remove_extension=False)
-            og_file_extension = utils.get_original_file_extension(decrypted_content)
-            decrypted_content = utils.remove_file_extension(decrypted_content)
-            save_file(decrypted_content, defaultextension=f"*{og_file_extension}", filetypes=(("Decrypted Files", f"*{og_file_extension}"), ("All files", "*.*")),
-                      suggested_filename=utils.get_file_name(selected_files[0], False), 
-                      on_saving_initiated=self.master.destroy)
+            selected_file_count = len(selected_files)
+            if selected_file_count == 1:    #If only one file selected, then ask for save location
+                decrypted_content = decrypt_file_content(selected_files[0], password=entered_password, remove_extension=False)
+                og_file_extension = utils.get_original_file_extension(decrypted_content)
+                decrypted_content = utils.remove_file_extension(decrypted_content)
+                save_file(decrypted_content, defaultextension=f"*{og_file_extension}", filetypes=(("Decrypted Files", f"*{og_file_extension}"), ("All files", "*.*")),
+                        suggested_filename=utils.get_file_name(selected_files[0], False), 
+                        on_saving_initiated=self.master.destroy)
+            else:
+                self.master.destroy()   #Close The Password Entry Field Window
+
+                decrypt_files(selected_files, password=entered_password, 
+                            on_file_decrypted=lambda i: print(f"{i}/{selected_file_count} files decrypted."))
         except FileNotFoundError:
             print("No File Argument")
 
