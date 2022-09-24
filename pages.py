@@ -1,3 +1,4 @@
+from doctest import master
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
@@ -6,35 +7,9 @@ from encryptor import encrypt_files
 from decryptor import decrypt_file_content
 from decryptor import decrypt_files
 import utils
-from data import selected_files
+import data
 
 page_collection = {}
-
-
-def setup_all_pages(main_window: tk.Widget, window_width: int, window_height: int, start_page: str):
-
-    options_page = Options_Page(
-        master=main_window, width=window_width, height=window_height)
-    page_collection["Options"] = options_page
-
-    encryption_page = Encryption_Page(
-        master=main_window, width=window_width, height=window_height)
-    page_collection["Encrypt"] = encryption_page
-
-    decryption_page = Decryption_Page(
-        master=main_window, width=window_width, height=window_height)
-    page_collection["Decrypt"] = decryption_page
-
-    show_page(page_to_show=start_page)
-
-
-def show_page(current_page=None, page_to_show="Options"):
-    if current_page:
-        current_page.clear_entry()
-        current_page.hide()
-
-    page_collection[page_to_show].show()
-
 
 class Page(tk.Frame):
     def __init__(self, *args, **kwargs):
@@ -59,10 +34,39 @@ class Page(tk.Frame):
         None
 
 
+def setup_all_pages(main_window: tk.Widget, window_width: int, window_height: int, start_page: str):
+
+    options_page = Options_Page(master=main_window, width=window_width, height=window_height)
+    page_collection["Options"] = options_page
+
+    encryption_page = Encryption_Page(master=main_window, width=window_width, height=window_height)
+    page_collection["Encrypt"] = encryption_page
+
+    decryption_page = Decryption_Page(master=main_window, width=window_width, height=window_height)
+    page_collection["Decrypt"] = decryption_page
+
+    progress_page = Progress_Page(master=main_window, width=window_width, height=window_height)
+    page_collection["Progress"] = progress_page
+
+    show_page(page_to_show=start_page)
+
+
+def show_page(current_page: Page = None, page_to_show="Options") -> Page:
+    if current_page:
+        current_page.clear_entry()
+        current_page.hide()
+
+    page = page_collection[page_to_show]
+    page.show()
+    return page
+
+
 class Options_Page(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
+    
 
+    def show(self):
         self.rowconfigure(index=0, minsize=int(self.page_height/2))
         self.rowconfigure(index=1, minsize=int(self.page_height/2))
         self.columnconfigure(index=0, minsize=int(self.page_width))
@@ -95,10 +99,14 @@ class Options_Page(Page):
         btn_decrypt.pack(pady=20)
 
 
+        super().show()
+
+
 class Encryption_Page(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
+    def show(self):
         # frm_backbutton = tk.Frame(master=self, relief=tk.RAISED, borderwidth=0)
         # frm_backbutton.place(relx=0, rely=0, anchor="nw")
 
@@ -160,6 +168,9 @@ class Encryption_Page(Page):
                                 command=self.encryption_process)
         btn_encrypt.pack(pady=(0, 10))
 
+
+        super().show()
+
     def primary_focus(self):
         return self.ent_createpassword.focus_set()
 
@@ -183,17 +194,17 @@ class Encryption_Page(Page):
             return
 
         try:
-            selected_file_count = len(selected_files)
+            selected_file_count = len(data.selected_files)
             if selected_file_count == 1:    #If only one file selected, then ask for save location
-                encrypted_content = encrypt_file_content(selected_files[0], password=created_password, add_extension=True)
+                encrypted_content = encrypt_file_content(data.selected_files[0], password=created_password, add_extension=True)
                 save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
-                        suggested_filename=utils.get_file_name(selected_files[0])+".enc", 
-                        on_saving_initiated=self.master.destroy)
+                        suggested_filename=utils.get_file_name(data.selected_files[0])+".enc", 
+                        on_saving_initiated=lambda: show_progress(current_page=self, total_file_count=selected_file_count))
             else:
-                self.master.destroy()   #Close The Password Entry Field Window
+                show_progress(current_page=self, total_file_count=selected_file_count)
 
-                encrypt_files(selected_files, password=created_password, add_extension=True, 
-                            on_file_encrypted=lambda i: print(f"{i}/{selected_file_count} files encrypted."))
+                encrypt_files(data.selected_files, password=created_password, add_extension=True, 
+                            on_file_encrypted=lambda file_count: show_processed_filecount(file_count))
         except FileNotFoundError:
             print("No File Argument")
 
@@ -202,6 +213,7 @@ class Decryption_Page(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
 
+    def show(self):
         # frm_backbutton = tk.Frame(master=self, relief=tk.RAISED, borderwidth=0)
         # frm_backbutton.place(relx=0, rely=0, anchor="nw")
 
@@ -237,6 +249,9 @@ class Decryption_Page(Page):
                                 command=self.decryption_process)
         btn_decrypt.pack(pady=(0, 0))
 
+
+        super().show()
+
     def primary_focus(self):
         return self.ent_enterpassword.focus_set()
 
@@ -253,22 +268,108 @@ class Decryption_Page(Page):
                                  message="Invalid password entered.")
             return
         try:
-            selected_file_count = len(selected_files)
+            selected_file_count = len(data.selected_files)
             if selected_file_count == 1:    #If only one file selected, then ask for save location
-                decrypted_content = decrypt_file_content(selected_files[0], password=entered_password, remove_extension=False)
+                decrypted_content = decrypt_file_content(data.selected_files[0], password=entered_password, remove_extension=False)
                 og_file_extension = utils.get_original_file_extension(decrypted_content)
                 decrypted_content = utils.remove_file_extension(decrypted_content)
                 save_file(decrypted_content, defaultextension=f"*{og_file_extension}", filetypes=(("Decrypted Files", f"*{og_file_extension}"), ("All files", "*.*")),
-                        suggested_filename=utils.get_file_name(selected_files[0], False), 
-                        on_saving_initiated=self.master.destroy)
+                        suggested_filename=utils.get_file_name(data.selected_files[0], False), 
+                        on_saving_initiated=lambda: show_progress(current_page=self, total_file_count=selected_file_count))
             else:
-                self.master.destroy()   #Close The Password Entry Field Window
+                show_progress(current_page=self, total_file_count=selected_file_count)
 
-                decrypt_files(selected_files, password=entered_password, 
-                            on_file_decrypted=lambda i: print(f"{i}/{selected_file_count} files decrypted."))
+                decrypt_files(data.selected_files, password=entered_password, 
+                            on_file_decrypted=lambda file_count: show_processed_filecount(file_count))
         except FileNotFoundError:
             print("No File Argument")
 
+class Progress_Page(Page):
+    def __init__(self, *args, **kwargs):
+        Page.__init__(self, *args, **kwargs)
+        
+        self.processed_filecount = 0
+        self.total_files_for_processing = 0
+
+    def show(self):
+        application_window = self.master
+
+        screenWidth = application_window.winfo_screenwidth()
+        screenHeight = application_window.winfo_screenheight()
+        screenAspectRatio = screenWidth / screenHeight
+
+        windowAspectRatio = 6
+        windowWidth = int(screenWidth / 5)
+        windowHeight = int(windowWidth / windowAspectRatio)
+
+        self.center_window(windowWidth, windowHeight)
+
+        self.rowconfigure(0, minsize=int(windowHeight))
+        self.columnconfigure(0, minsize=int(windowWidth * 2.1 / 3))
+        self.columnconfigure(1, minsize=int(windowWidth * 0.9 / 3))
+
+        frm_staticlabel = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_staticlabel.grid(row=0, column=0, sticky="e")
+
+        process_type = "Encrypt"
+
+        match data.operation_mode:
+            case data.OperationMode.ENCRYPTION:
+                process_type = "Encrypt"
+            case data.OperationMode.DECRYPTION:
+                process_type = "Decrypt"
+            case _:
+                print("Operation mode argument not passed properly.")
+
+        self.static_label = tk.Label(master=frm_staticlabel, 
+            text=f"{process_type}ing Files ({self.processed_filecount}/{self.total_files_for_processing})",
+            font=("Arial", 15))
+        self.static_label.pack(side="right")
+
+        frm_dynamiclabel = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_dynamiclabel.grid(row=0, column=1, sticky="w")
+
+        self.dynamic_label = tk.Label(master=frm_dynamiclabel, text="", font=("Arial", 15, "bold"))
+        self.dynamic_label.pack(side="left")
+
+        self.animate_label(self.dynamic_label, "")
+
+
+        super().show()
+
+    def center_window(self, width=300, height=200):
+        # get screen width and height
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+
+        # calculate position x and y coordinates
+        x = int((screen_width/2)) - int((width/2))
+        y = int((screen_height/2)) - int((height/2))
+        self.master.geometry(f'{width}x{height}+{x}+{y}')
+
+    def animate_label(self, label: tk.Label, dots: str):
+        dots += ". "
+        if len(dots) > 6:
+            dots = ""
+        label.config(text=dots)
+        self.master.after(500, lambda: self.animate_label(label, dots))
+
+    def set_total_files_for_processing(self, file_count: int):
+        self.total_files_for_processing = file_count
+
+    def set_processed_filecount(self, file_count: int):
+        self.processed_filecount = file_count
+        self.static_label.config(text="Encrypting files {files_encrypting}/{total_files}".format(files_encrypting=self.processed_filecount+1, total_files=self.total_files_for_processing))
+
+def show_progress(current_page: Page, total_file_count: int):
+    progress_page = page_collection["Progress"]
+    progress_page.set_total_files_for_processing(total_file_count)
+    
+    show_page(current_page=current_page, page_to_show="Progress")
+
+def show_processed_filecount(file_count: int):
+    progress_page = page_collection["Progress"]
+    progress_page.set_processed_filecount(file_count)
 
 def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested_path=None, suggested_filename=None, 
               on_saving_initiated=None, on_file_saved=None, on_cancelled=None):
