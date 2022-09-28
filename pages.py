@@ -8,6 +8,7 @@ from decryptor import decrypt_files
 import utils
 import data
 import threading
+from PIL import Image, ImageTk
 
 
 page_collection = {}
@@ -48,6 +49,9 @@ def setup_all_pages(main_window: tk.Widget, window_width: int, window_height: in
 
     progress_page = Progress_Page(master=main_window, width=window_width, height=window_height)
     page_collection["Progress"] = progress_page
+
+    complete_page = Complete_Page(master=main_window, width=window_width, height=window_height)
+    page_collection["Complete"] = complete_page
 
     show_page(page_to_show=start_page)
 
@@ -205,7 +209,8 @@ class Encryption_Page(Page):
                 show_progress(current_page=self, total_file_count=selected_file_count)
 
                 new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files, created_password, True, 
-                    lambda file_count: show_processed_filecount(file_count),))
+                    lambda file_count: show_processed_filecount(file_count),
+                    lambda file_count: show_completion(page_collection["Progress"], file_count),))
                 new_thread.start()
 
         except FileNotFoundError:
@@ -282,8 +287,11 @@ class Decryption_Page(Page):
             else:
                 show_progress(current_page=self, total_file_count=selected_file_count)
 
-                decrypt_files(data.selected_files, password=entered_password, 
-                            on_file_decrypted=lambda file_count: show_processed_filecount(file_count))
+                new_thread = threading.Thread(target=decrypt_files, args=(data.selected_files, entered_password,
+                    lambda file_count: show_processed_filecount(file_count), 
+                    lambda file_count: show_completion(page_collection["Progress"], file_count),))
+                new_thread.start()
+
         except FileNotFoundError:
             print("No File Argument")
 
@@ -349,6 +357,7 @@ class Progress_Page(Page):
         x = int((screen_width/2)) - int((width/2))
         y = int((screen_height/2)) - int((height/2))
         self.master.geometry(f'{width}x{height}+{x}+{y}')
+        self.master.resizable(0, 0)
 
     def animate_label(self, label: tk.Label, dots: str):
         dots += ". "
@@ -364,6 +373,69 @@ class Progress_Page(Page):
         self.processed_filecount = file_count
         self.static_label.config(text="Encrypting files {files_encrypting}/{total_files}".format(files_encrypting=self.processed_filecount+1, total_files=self.total_files_for_processing))
 
+
+class Complete_Page(Page):
+    def __init__(self, *args, **kwargs):
+        Page.__init__(self, *args, **kwargs)
+
+    def show(self):
+        application_window = self.master
+
+        screenWidth = application_window.winfo_screenwidth()
+        screenHeight = application_window.winfo_screenheight()
+        screenAspectRatio = screenWidth / screenHeight
+
+        windowAspectRatio = 3
+        windowWidth = int(screenWidth / 7)
+        windowHeight = int(windowWidth / windowAspectRatio)
+
+        self.center_window(windowWidth, windowHeight)
+
+        self.rowconfigure(0, minsize=int(windowHeight))
+        self.columnconfigure(0, minsize=int(windowWidth * 0.9 / 3))
+        self.columnconfigure(1, minsize=int(windowWidth * 2.1 / 3))
+
+        process_type = "Encrypt"
+
+        match data.operation_mode:
+            case data.OperationMode.ENCRYPTION:
+                process_type = "Encrypt"
+            case data.OperationMode.DECRYPTION:
+                process_type = "Decrypt"
+            case _:
+                print("Operation mode argument not passed properly.")
+
+        frm_completion_icon = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_completion_icon.grid(row=0, column=0, sticky="e")
+
+        icon_dimension = int(windowHeight/2)
+        right_padding = int(icon_dimension/3.5)
+        img = Image.open("C:\\PythonProjects\\FileEnDecryptor\\checkmark.png")
+        completion_icon = ImageTk.PhotoImage(img.resize((icon_dimension, icon_dimension)))
+        lbl_completion_icon = tk.Label(master=frm_completion_icon, text="X", image=completion_icon, compound="right")
+        lbl_completion_icon.pack(side="right", padx=(0, right_padding))
+
+        frm_completion_text = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_completion_text.grid(row=0, column=1, sticky="w")
+
+        lbl_completion_text = tk.Label(master=frm_completion_text, text=f"{process_type}ion Complete", font=("Arial", 13, "bold"))
+        lbl_completion_text.pack(side="left")
+
+
+        super().show()
+
+    def center_window(self, width=300, height=200):
+        # get screen width and height
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+
+        # calculate position x and y coordinates
+        x = int((screen_width/2)) - int((width/2))
+        y = int((screen_height/2)) - int((height/2))
+        self.master.geometry(f'{width}x{height}+{x}+{y}')
+        self.master.resizable(0, 0)
+
+
 def show_progress(current_page: Page, total_file_count: int):
     progress_page = page_collection["Progress"]
     progress_page.set_total_files_for_processing(total_file_count)
@@ -373,6 +445,10 @@ def show_progress(current_page: Page, total_file_count: int):
 def show_processed_filecount(file_count: int):
     progress_page = page_collection["Progress"]
     progress_page.set_processed_filecount(file_count)
+
+def show_completion(current_page: Page, total_file_count: int):
+    show_page(current_page=current_page, page_to_show="Complete")
+    
 
 def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested_path=None, suggested_filename=None, 
               on_saving_initiated=None, on_file_saved=None, on_cancelled=None):

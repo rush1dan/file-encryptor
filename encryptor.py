@@ -33,8 +33,9 @@ def encrypt_file(filepath: str, password: str, savepath: str, add_extension=True
     except FileNotFoundError:
         print("File Not Found")
 
-def encrypt_files(filepaths: list, password: str, add_extension=True, on_file_encrypted = lambda x : None):
+def encrypt_files(filepaths: list, password: str, add_extension=True, on_file_encrypted=lambda x: None, on_encryption_complete=lambda x: None):
     try:
+        total_files = len(filepaths)
         files_processed = 0
         for filepath in filepaths:
             file_directory = utils.get_file_directory(filepath)
@@ -45,7 +46,11 @@ def encrypt_files(filepaths: list, password: str, add_extension=True, on_file_en
             encrypt_file(filepath, password, save_file_path, add_extension)
 
             files_processed += 1
-            if on_file_encrypted != None:
-                on_file_encrypted(files_processed)
+            if files_processed == total_files:
+                if on_encryption_complete != None:
+                    on_encryption_complete(total_files)
+            else:
+                if on_file_encrypted != None:
+                    on_file_encrypted(files_processed)
     except FileNotFoundError:
         print("File(s) Not Found")
