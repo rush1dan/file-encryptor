@@ -1,4 +1,3 @@
-from doctest import master
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
@@ -8,6 +7,8 @@ from decryptor import decrypt_file_content
 from decryptor import decrypt_files
 import utils
 import data
+import threading
+
 
 page_collection = {}
 
@@ -203,8 +204,10 @@ class Encryption_Page(Page):
             else:
                 show_progress(current_page=self, total_file_count=selected_file_count)
 
-                encrypt_files(data.selected_files, password=created_password, add_extension=True, 
-                            on_file_encrypted=lambda file_count: show_processed_filecount(file_count))
+                new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files, created_password, True, 
+                    lambda file_count: show_processed_filecount(file_count),))
+                new_thread.start()
+
         except FileNotFoundError:
             print("No File Argument")
 
