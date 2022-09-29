@@ -412,8 +412,9 @@ class Complete_Page(Page):
         right_padding = int(icon_dimension/3.5)
         img = Image.open("C:\\PythonProjects\\FileEnDecryptor\\checkmark.png")
         completion_icon = ImageTk.PhotoImage(img.resize((icon_dimension, icon_dimension)))
-        lbl_completion_icon = tk.Label(master=frm_completion_icon, text="X", image=completion_icon, compound="right")
+        lbl_completion_icon = tk.Label(master=frm_completion_icon, image=completion_icon, compound="right")
         lbl_completion_icon.pack(side="right", padx=(0, right_padding))
+        lbl_completion_icon.image = completion_icon
 
         frm_completion_text = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
         frm_completion_text.grid(row=0, column=1, sticky="w")
