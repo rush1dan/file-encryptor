@@ -4,7 +4,7 @@
 class EnShlExtClassFactory : public IClassFactory, IUnknown
 {
 protected:
-	DWORD m_ObjRefCount;
+	DWORD m_objRefCount;
 	~EnShlExtClassFactory();
 
 public:
