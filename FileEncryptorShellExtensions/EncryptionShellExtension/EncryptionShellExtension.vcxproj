@@ -143,12 +143,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EncryptionContextMenuHandler.h" />
     <ClInclude Include="EncryptionShlExtGUID.h" />
     <ClInclude Include="EnShlExtClassFactory.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EncryptionContextMenuHandler.cpp" />
     <ClCompile Include="EncryptionShellExtension.cpp" />
     <ClCompile Include="EnShlExtClassFactory.cpp" />
     <ClCompile Include="pch.cpp">

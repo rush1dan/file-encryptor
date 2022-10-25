@@ -1,4 +1,5 @@
 #include "EnShlExtClassFactory.h"
+#include "EncryptionContextMenuHandler.h"
 
 extern UINT g_classObjCount;
 
@@ -59,7 +60,26 @@ HRESULT __stdcall EnShlExtClassFactory::CreateInstance(IUnknown* pUnkOuter, REFI
     if (pUnkOuter != NULL)
         return CLASS_E_NOAGGREGATION;
 
-    return E_NOTIMPL;
+    HRESULT hr;
+    if (IsEqualIID(riid, IID_IShellExtInit) || IsEqualIID(riid, IID_IContextMenu))
+    {
+        EncryptionContextMenuHandler* pEncryptionContextMenuHandler = new EncryptionContextMenuHandler();
+        if (pEncryptionContextMenuHandler == NULL)
+            return E_OUTOFMEMORY;
+
+        hr = pEncryptionContextMenuHandler->QueryInterface(riid, ppvObject);
+        //if (hr == S_OK)
+        //{
+        //    MessageBox(NULL, L"Context Menu Object", L"CreateInstance()", MB_OK);
+        //}
+        pEncryptionContextMenuHandler->Release();
+    }
+    else
+    {
+        return E_NOINTERFACE;
+    }
+
+    return hr;
 }
 
 HRESULT __stdcall EnShlExtClassFactory::LockServer(BOOL fLock)

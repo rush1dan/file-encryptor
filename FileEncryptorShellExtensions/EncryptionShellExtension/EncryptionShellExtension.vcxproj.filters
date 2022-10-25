@@ -27,6 +27,9 @@
     <ClInclude Include="EnShlExtClassFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EncryptionContextMenuHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EnShlExtClassFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EncryptionContextMenuHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
