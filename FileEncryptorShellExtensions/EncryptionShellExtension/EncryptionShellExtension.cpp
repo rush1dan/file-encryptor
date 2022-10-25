@@ -2,6 +2,7 @@
 #include "EncryptionShlExtGUID.h";
 #include <string>
 #include <ShlObj.h>
+#include "EnShlExtClassFactory.h"
 
 HINSTANCE g_hInstance;
 const std::wstring DLL_REG_NAME = L"SimpleFileEncryptor";
@@ -30,7 +31,26 @@ HRESULT __stdcall DllCanUnloadNow()
 
 HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
 {
-	return E_NOTIMPL;
+	if (!IsEqualCLSID(rclsid, CLSID_EncryptionShlExt))
+		return CLASS_E_CLASSNOTAVAILABLE;
+	if (!ppv)
+		return E_INVALIDARG;
+
+	*ppv = NULL;
+
+	HRESULT hr = E_UNEXPECTED;
+	EnShlExtClassFactory* pShellExtClassFactory = new EnShlExtClassFactory();
+	if (pShellExtClassFactory != NULL)
+	{
+		hr = pShellExtClassFactory->QueryInterface(riid, ppv);
+		/*if (hr == S_OK)
+		{
+			MessageBox(NULL, L"Class Object", L"DllGetClassObject()", MB_OK);
+		}*/
+		pShellExtClassFactory->Release();
+	}
+
+	return hr;
 }
 
 std::wstring WStringFromCLSID(IID iid)
