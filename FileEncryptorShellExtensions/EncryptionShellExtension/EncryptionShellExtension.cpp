@@ -6,6 +6,8 @@
 HINSTANCE g_hInstance;
 const std::wstring DLL_REG_NAME = L"SimpleFileEncryptor";
 
+UINT g_classObjCount;
+
 
 BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -23,7 +25,7 @@ BOOL __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 HRESULT __stdcall DllCanUnloadNow()
 {
-	return E_NOTIMPL;
+	return g_classObjCount > 0 ? S_FALSE : S_OK;
 }
 
 HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
