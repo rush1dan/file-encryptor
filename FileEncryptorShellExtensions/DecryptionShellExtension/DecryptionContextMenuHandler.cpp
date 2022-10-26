@@ -193,5 +193,7 @@ HRESULT __stdcall DecryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
 
 HRESULT __stdcall DecryptionContextMenuHandler::GetCommandString(UINT_PTR idCmd, UINT uType, UINT* pReserved, CHAR* pszName, UINT cchMax)
 {
+    //Gets information about a shortcut menu command, including the help string and the language-independent, or canonical, name for the command.
+    //Not necessary yet.
     return S_OK;
 }
