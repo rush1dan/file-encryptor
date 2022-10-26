@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/FileEncryptorShellExtensions/EncryptionShellExtension/x64/Debug
+/FileEncryptorShellExtensions/x64/Debug
+/FileEncryptorShellExtensions/DecryptionShellExtension/x64/Debug
