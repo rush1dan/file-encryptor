@@ -156,10 +156,38 @@ HRESULT __stdcall DecryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 
 HRESULT __stdcall DecryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINFO* pici)
 {
+    std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main.exe";
+    std::wstring operationMode = L"--decrypt";
+    std::wstring argString = operationMode;
+
     for (int i = 0; i < m_fileCount; i++)
     {
-        MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
+        //MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
+        argString += L" " + m_szFiles[i];
     }
+    //MessageBoxA(NULL, argString.c_str(), "Result", MB_OK);
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    // set the size of the structures
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+    LPWSTR arg = _wcsdup(argString.c_str());
+    BOOL processCreated = CreateProcess(executablePath.c_str(), arg, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+    if (!processCreated)
+    {
+        std::string message = "Decryption Application Failed to Start Due to:\nError Code " + std::to_string(GetLastError());
+        MessageBoxA(NULL, message.c_str(), "Result", MB_ICONERROR | MB_OK);
+    }
+    // Wait until child process exits.
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    // Close process and thread handles. 
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    free(arg);
+
     return S_OK;
 }
 
