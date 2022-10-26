@@ -121,12 +121,6 @@ HRESULT __stdcall DllRegisterServer()
 		SizeOfWStringInBytes(WStringFromCLSID(CLSID_EncryptionShlExt)));
 	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
 
-	//Set handler key (AppliesTo) value to apply to every file type except .enc
-	std::wstring appliesToValue = L"NOT System.FileExtension:=.enc";
-	result = RegSetValueEx(hkey, L"AppliesTo", 0, REG_SZ, (BYTE*)appliesToValue.c_str(),
-		SizeOfWStringInBytes(appliesToValue));
-	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-
 	RegCloseKey(hkey);
 
 	//Alert that there has been a change:

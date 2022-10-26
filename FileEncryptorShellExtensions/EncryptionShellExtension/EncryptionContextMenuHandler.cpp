@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <string>
 #include <atlconv.h>
+#include <Shlwapi.h>
 
 EncryptionContextMenuHandler::~EncryptionContextMenuHandler()
 {
@@ -104,6 +105,17 @@ HRESULT __stdcall EncryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
                     wchar_t	sz_File[MAX_PATH];
                     DragQueryFile((HDROP)medium.hGlobal, i, sz_File,
                         sizeof(sz_File) / sizeof(TCHAR));
+
+                    //Don't show encryption context menu item for .exe or .enc files
+                    std::wstring exeExtension = L".exe";
+                    std::wstring encExtension = L".enc";
+                    if (exeExtension.compare(PathFindExtensionW(sz_File)) == 0 || encExtension.compare(PathFindExtensionW(sz_File)) == 0)
+                    {
+                        ReleaseStgMedium(&medium);
+                        m_szFiles.clear();
+                        return E_NOTIMPL;
+                    }
+
                     m_szFiles.push_back(std::wstring(sz_File));
                 }
             }
