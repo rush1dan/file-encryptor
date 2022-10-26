@@ -3,9 +3,6 @@
 #include <string>
 #include <atlconv.h>
 #include <Shlwapi.h>
-#include <sstream>
-#include <iostream>
-#include <format>
 
 EncryptionContextMenuHandler::~EncryptionContextMenuHandler()
 {
@@ -191,6 +188,7 @@ HRESULT __stdcall EncryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
     free(arg);
+
     return S_OK;
 }
 
