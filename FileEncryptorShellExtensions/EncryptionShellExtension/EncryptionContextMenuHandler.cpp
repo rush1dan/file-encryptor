@@ -3,6 +3,7 @@
 #include <string>
 #include <atlconv.h>
 #include <Shlwapi.h>
+#include <sstream>
 
 EncryptionContextMenuHandler::~EncryptionContextMenuHandler()
 {
@@ -157,10 +158,22 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 
 HRESULT __stdcall EncryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINFO* pici)
 {
+    std::string executablePath = "C:\\PythonProjects\\FileEnDecryptor\\dist\\main.exe";
+    std::string operationMode = "--encrypt";
+    std::ostringstream argStream;
+    argStream << executablePath;
+    argStream << " " << operationMode;
+
+    USES_CONVERSION;
     for (int i = 0; i < m_fileCount; i++)
     {
-        MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
+        //MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
+        std::string filePath = W2A(m_szFiles[i].c_str());
+        argStream << " " << filePath;
     }
+
+    //MessageBoxA(NULL, argStream.str().c_str(), "Result", MB_OK);
+    system(argStream.str().c_str());
     return S_OK;
 }
 
