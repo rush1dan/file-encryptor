@@ -2,8 +2,6 @@ import sys
 import traceback
 import data
 import main_window
-import tkinter as tk
-from tkinter import messagebox
 
 
 def run_from_right_click():
@@ -15,7 +13,7 @@ def run_as_standalone_application():
 
 def process_cmd_args()->tuple[str, list]:
     """Returns the Operation Mode and Selected Files"""
-    return sys.argv[1], sys.argv[2:]
+    return sys.argv[0], sys.argv[1:]
 
 if __name__ == "__main__":
     try:

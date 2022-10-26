@@ -4,6 +4,8 @@
 #include <atlconv.h>
 #include <Shlwapi.h>
 #include <sstream>
+#include <iostream>
+#include <format>
 
 EncryptionContextMenuHandler::~EncryptionContextMenuHandler()
 {
@@ -158,22 +160,37 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 
 HRESULT __stdcall EncryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINFO* pici)
 {
-    std::string executablePath = "C:\\PythonProjects\\FileEnDecryptor\\dist\\main.exe";
-    std::string operationMode = "--encrypt";
-    std::ostringstream argStream;
-    argStream << executablePath;
-    argStream << " " << operationMode;
+    std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main.exe";
+    std::wstring operationMode = L"--encrypt";
+    std::wstring argString = operationMode;
 
-    USES_CONVERSION;
     for (int i = 0; i < m_fileCount; i++)
     {
         //MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
-        std::string filePath = W2A(m_szFiles[i].c_str());
-        argStream << " " << filePath;
+        argString += L" " + m_szFiles[i];
     }
+    //MessageBoxA(NULL, argString.c_str(), "Result", MB_OK);
 
-    //MessageBoxA(NULL, argStream.str().c_str(), "Result", MB_OK);
-    system(argStream.str().c_str());
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    // set the size of the structures
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+    LPWSTR arg = _wcsdup(argString.c_str());
+    BOOL processCreated = CreateProcess(executablePath.c_str(), arg, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+    if (!processCreated)
+    {
+        std::string message = "Encryption Application Failed to Start Due to:\nError Code " + std::to_string(GetLastError());
+        MessageBoxA(NULL, message.c_str(), "Result", MB_ICONERROR | MB_OK);
+    }
+    // Wait until child process exits.
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    // Close process and thread handles. 
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    free(arg);
     return S_OK;
 }
 
