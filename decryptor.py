@@ -30,7 +30,8 @@ def decrypt_file(filepath: str, password: str, savepath: str):
         decrypted_content = decrypt_file_content(filepath, password, remove_extension=False)    #Embedded file extension needs to be extracted
         og_file_extension = utils.get_original_file_extension(decrypted_content)
         decrypted_content = utils.remove_file_extension(decrypted_content)      #Embedded file extension can be removed after extracting it
-        savepath += og_file_extension   
+        if not name_has_og_extension(savepath, og_file_extension):      #If decrypted file already doesn't have the og extension, then add it
+            savepath += og_file_extension   
 
         with open(savepath, "wb") as f:
             f.write(decrypted_content)
@@ -57,3 +58,6 @@ def decrypt_files(filepaths: list, password: str, save_directory: str, on_file_d
                     on_file_decrypted(files_processed)
     except FileNotFoundError:
         print("File(s) Not Found")
+
+def name_has_og_extension(filename_or_path: str, extension: str)->bool:
+    return filename_or_path[len(filename_or_path) - len(extension) : ] == extension
