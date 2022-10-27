@@ -13,8 +13,7 @@ def main_window():
     windowHeight = int(windowWidth / windowAspectRatio)
 
     window.title("Simple File Encryptor")
-    window.geometry(f"{windowWidth}x{windowHeight}")
-    window.resizable(0, 0)
+    center_window(window, windowWidth, windowHeight)
     
     import data
     import pages
@@ -23,3 +22,14 @@ def main_window():
     pages.setup_all_pages(main_window=window, window_width=windowWidth, window_height=windowHeight, start_page=initial_page)
 
     window.mainloop()
+
+def center_window(window, width=300, height=200):
+        # get screen width and height
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+
+        # calculate position x and y coordinates
+        x = int((screen_width/2)) - int((width/2))
+        y = int((screen_height/2)) - int((height/2))
+        window.geometry(f'{width}x{height}+{x}+{y}')
+        window.resizable(0, 0)
