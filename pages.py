@@ -1,9 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
-from encryptor import encrypt_file_content
 from encryptor import encrypt_files
-from decryptor import decrypt_file_content
 from decryptor import decrypt_files
 import utils
 import data
@@ -199,16 +197,14 @@ class Encryption_Page(Page):
             return
 
         try:
-            selected_file_count = len(data.selected_files)
-            if selected_file_count == 1:    #If only one file selected, then ask for save location
-                encrypted_content = encrypt_file_content(data.selected_files[0], password=created_password, add_extension=True)
-                save_file(encrypted_content, defaultextension="*.enc", filetypes=(("Encrypted Files", "*.enc"), ("All files", "*.*")),
-                        suggested_filename=utils.get_file_name(data.selected_files[0])+".enc", 
-                        on_saving_initiated=lambda: show_progress(current_page=self, total_file_count=selected_file_count))
-            else:
+            suggested_directory = utils.get_file_directory(data.selected_files[0])
+            saving_directory = save_files_at(suggested_directory)
+
+            if saving_directory:
+                selected_file_count = len(data.selected_files)
                 show_progress(current_page=self, total_file_count=selected_file_count)
 
-                new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files, created_password, True, 
+                new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files, created_password, saving_directory, True, 
                     lambda file_count: show_processed_filecount(file_count),
                     lambda file_count: show_completion(page_collection["Progress"], file_count),))
                 new_thread.start()
@@ -276,18 +272,14 @@ class Decryption_Page(Page):
                                  message="Invalid password entered.")
             return
         try:
-            selected_file_count = len(data.selected_files)
-            if selected_file_count == 1:    #If only one file selected, then ask for save location
-                decrypted_content = decrypt_file_content(data.selected_files[0], password=entered_password, remove_extension=False)
-                og_file_extension = utils.get_original_file_extension(decrypted_content)
-                decrypted_content = utils.remove_file_extension(decrypted_content)
-                save_file(decrypted_content, defaultextension=f"*{og_file_extension}", filetypes=(("Decrypted Files", f"*{og_file_extension}"), ("All files", "*.*")),
-                        suggested_filename=utils.get_file_name(data.selected_files[0], False), 
-                        on_saving_initiated=lambda: show_progress(current_page=self, total_file_count=selected_file_count))
-            else:
+            suggested_directory = utils.get_file_directory(data.selected_files[0])
+            saving_directory = save_files_at(suggested_directory)
+
+            if saving_directory:
+                selected_file_count = len(data.selected_files)
                 show_progress(current_page=self, total_file_count=selected_file_count)
 
-                new_thread = threading.Thread(target=decrypt_files, args=(data.selected_files, entered_password,
+                new_thread = threading.Thread(target=decrypt_files, args=(data.selected_files, entered_password, saving_directory,
                     lambda file_count: show_processed_filecount(file_count), 
                     lambda file_count: show_completion(page_collection["Progress"], file_count),))
                 new_thread.start()
@@ -471,3 +463,7 @@ def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested
         print("No File Path Selected")
         if on_cancelled != None:
             on_cancelled()
+
+def save_files_at(suggested_dir: str)->str:
+    return filedialog.askdirectory(initialdir=suggested_dir, mustexist=True)
+

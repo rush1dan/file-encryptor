@@ -37,14 +37,14 @@ def decrypt_file(filepath: str, password: str, savepath: str):
     except FileNotFoundError:
         print("File Not Found")
 
-def decrypt_files(filepaths: list, password: str, on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None):
+def decrypt_files(filepaths: list, password: str, save_directory: str, on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None):
     try:
         total_files = len(filepaths)
         files_processed = 0
         for filepath in filepaths:
-            file_directory = utils.get_file_directory(filepath)
+            #file_directory = utils.get_file_directory(filepath)
             save_file_name = utils.get_file_name(filepath, with_extension=False)
-            save_file_path_without_extension = file_directory + "\\" + save_file_name
+            save_file_path_without_extension = save_directory + "\\" + save_file_name
 
             decrypt_file(filepath, password, save_file_path_without_extension)
 
