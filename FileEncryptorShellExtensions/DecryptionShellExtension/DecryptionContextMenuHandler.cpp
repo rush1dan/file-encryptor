@@ -141,7 +141,7 @@ HRESULT __stdcall DecryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
     myItem.fMask = MIIM_STRING | MIIM_ID;
     myItem.wID = idCmdFirst;
 
-    LPCSTR itemTypeDataStr = "Decrypt Files(s)";
+    LPCSTR itemTypeDataStr = "Decrypt File(s)";
     USES_CONVERSION;
     LPWSTR itemTypeData = A2W(itemTypeDataStr);
     myItem.dwTypeData = itemTypeData;
