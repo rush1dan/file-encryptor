@@ -293,6 +293,7 @@ class Progress_Page(Page):
         
         self.processed_filecount = 0
         self.total_files_for_processing = 0
+        self.progress_finished = False
 
     def show(self):
         application_window = self.master
@@ -351,12 +352,17 @@ class Progress_Page(Page):
         self.master.geometry(f'{width}x{height}+{x}+{y}')
         self.master.resizable(0, 0)
 
+    def listen_for_completion(self):
+        while not self.progress_finished:
+            pass
+
     def animate_label(self, label: tk.Label, dots: str):
         dots += ". "
         if len(dots) > 6:
             dots = ""
         label.config(text=dots)
-        self.master.after(500, lambda: self.animate_label(label, dots))
+        if not self.progress_finished:
+            self.master.after(500, lambda: self.animate_label(label, dots))
 
     def set_total_files_for_processing(self, file_count: int):
         self.total_files_for_processing = file_count
@@ -365,6 +371,8 @@ class Progress_Page(Page):
         self.processed_filecount = file_count
         self.static_label.config(text="Encrypting files {files_encrypting}/{total_files}".format(files_encrypting=self.processed_filecount+1, total_files=self.total_files_for_processing))
 
+    def set_progress_finished(self):
+        self.progress_finished = True
 
 class Complete_Page(Page):
     def __init__(self, *args, **kwargs):
@@ -440,6 +448,7 @@ def show_processed_filecount(file_count: int):
     progress_page.set_processed_filecount(file_count)
 
 def show_completion(current_page: Page, total_file_count: int):
+    page_collection["Progress"].set_progress_finished()
     show_page(current_page=current_page, page_to_show="Complete")
     
 
