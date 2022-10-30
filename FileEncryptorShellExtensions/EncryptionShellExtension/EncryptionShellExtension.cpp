@@ -78,6 +78,8 @@ HRESULT __stdcall DllRegisterServer()
 	HKEY hkey;
 	DWORD lpDisp;
 
+	//----------------Create keys for file operation----------------
+
 	//Create GUID key:
 	std::wstring lpSubKey = L"SOFTWARE\\Classes\\CLSID\\" + WStringFromCLSID(CLSID_EncryptionShlExt);
 	LONG result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &lpDisp);
@@ -123,6 +125,21 @@ HRESULT __stdcall DllRegisterServer()
 
 	RegCloseKey(hkey);
 
+
+	//----------------Create Keys for folder operation----------------
+
+	//Create Handler Key:
+	lpSubKey = L"SOFTWARE\\Classes\\Directory\\shellex\\ContextMenuHandlers\\" + DLL_REG_NAME;
+	result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &lpDisp);
+	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
+
+	//Set handler key (default) value:
+	result = RegSetValueEx(hkey, NULL, 0, REG_SZ, (BYTE*)WStringFromCLSID(CLSID_EncryptionShlExt).c_str(),
+		SizeOfWStringInBytes(WStringFromCLSID(CLSID_EncryptionShlExt)));
+	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
+
+	RegCloseKey(hkey);
+
 	//Alert that there has been a change:
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 
@@ -132,6 +149,8 @@ HRESULT __stdcall DllRegisterServer()
 HRESULT __stdcall DllUnregisterServer()
 {
 	HKEY hkey;
+
+	//----------------Delete keys for file operation----------------
 
 	//Check if InprocServer32 key exists and if it does delete it
 	std::wstring lpSubKey = L"SOFTWARE\\Classes\\CLSID\\" + WStringFromCLSID(CLSID_EncryptionShlExt) + L"\\InprocServer32";
@@ -173,6 +192,18 @@ HRESULT __stdcall DllUnregisterServer()
 	}
 	RegCloseKey(hkey);
 
+
+	//----------------Delete keys for folder operation----------------
+
+	//Delete handler key:
+	lpSubKey = L"SOFTWARE\\Classes\\Directory\\shellex\\ContextMenuHandlers\\" + DLL_REG_NAME;
+	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, KEY_ALL_ACCESS, &hkey);
+	if (result == ERROR_SUCCESS)
+	{
+		result = RegDeleteKey(HKEY_LOCAL_MACHINE, lpSubKey.c_str());
+		if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
+	}
+	RegCloseKey(hkey);
 
 	//Alert that there has been a change:
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
