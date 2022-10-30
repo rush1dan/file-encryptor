@@ -11,16 +11,16 @@ def run_as_standalone_application():
     print("Right Click Menu Not Configured Properly.")
     return None
 
-def process_cmd_args()->tuple[str, list]:
-    """Returns the Operation Mode and Selected Files"""
-    return sys.argv[0], sys.argv[1:]
+def process_cmd_args()->tuple[str, str, list]:
+    """Returns the Operation Object, Operation Mode and Selected Files or Folders"""
+    return sys.argv[0], sys.argv[1], sys.argv[2:]
 
 if __name__ == "__main__":
     try:
-        operation_mode, selected_files = process_cmd_args()
+        operation_object, operation_mode, selected_files_or_folders = process_cmd_args()
 
         #Set operation and file data:
-        data.set_data(operation_arg=operation_mode, files=selected_files)
+        data.set_data(operation_object_arg=operation_object, operation_mode_arg=operation_mode, files_or_folders=selected_files_or_folders)
 
         # Run the program:
         try:

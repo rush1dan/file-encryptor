@@ -49,5 +49,34 @@ def remove_file_extension(decrypted_content: bytes) -> bytes:
 def int_to_bytes(x: int) -> bytes:
     return x.to_bytes((x.bit_length() + 7) // 8, 'big')
 
-def get_file_directory(filepath: str) -> str:
-    return os.path.dirname(os.path.realpath(filepath))
+def get_parent_directory(file_or_folder_path: str) -> str:
+    return os.path.dirname(os.path.realpath(file_or_folder_path))
+
+def get_folder_name(folderpath: str):
+    foldername_rev = ""
+    for i in range(len(folderpath) - 1, -1, -1):
+        ch = folderpath[i]
+        if ch == "/" or ch == "\\":
+            break
+        foldername_rev += ch
+
+        foldername = foldername_rev[::-1]
+    return foldername
+
+def get_all_files_under_directory(directory: str)->list:
+    all_files_list = []
+    for dir, sub_dirname_list, filename_list in os.walk(directory):
+        all_files_list.extend([dir + "\\" + filename for filename in filename_list])
+    return all_files_list
+
+def get_all_filenames_under_directory(directory: str)->list:
+    all_files_list = []
+    for dir, sub_dirname_list, filename_list in os.walk(directory):
+        all_files_list.extend(filename_list)
+    return all_files_list
+
+def get_all_filescount_under_directory(directory: str)->int:
+    file_count = 0
+    for dir, sub_dirname_list, filename_list in os.walk(directory):
+        file_count += len(filename_list)
+    return file_count

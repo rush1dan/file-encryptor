@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
-from encryptor import encrypt_files
+from encryptor import encrypt_files, encrypt_folders
 from decryptor import decrypt_files
 import utils
 import data
@@ -197,17 +197,29 @@ class Encryption_Page(Page):
             return
 
         try:
-            suggested_directory = utils.get_file_directory(data.selected_files[0])
-            saving_directory = save_files_at(suggested_directory)
+            suggested_directory = utils.get_parent_directory(data.selected_files_or_folders[0])
+            saving_directory = save_filesorfolders_at(suggested_directory)
 
             if saving_directory:
-                selected_file_count = len(data.selected_files)
-                show_progress(current_page=self, total_file_count=selected_file_count)
+                match data.operation_object:
+                    case data.OperationObject.FILE:
+                        selected_file_count = len(data.selected_files_or_folders)
+                        show_progress(current_page=self, total_file_count=selected_file_count)
 
-                new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files, created_password, saving_directory, True, 
-                    lambda file_count: show_processed_filecount(file_count),
-                    lambda file_count: show_completion(page_collection["Progress"], file_count),))
-                new_thread.start()
+                        new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files, created_password, saving_directory, True, 
+                            lambda file_count: show_processed_filecount(file_count),
+                            lambda file_count: show_completion(page_collection["Progress"], file_count),))
+                        new_thread.start()
+                    case data.OperationObject.FOLDER:
+                        total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in data.selected_files_or_folders])
+                        show_progress(current_page=self, total_file_count=total_files)
+
+                        new_thread = threading.Thread(target=encrypt_folders, args=(data.selected_files_or_folders, created_password, saving_directory, 
+                            lambda file_count: show_processed_filecount(file_count),
+                            lambda file_count: show_completion(page_collection["Progress"], file_count),))
+                        new_thread.start()
+                    case _:
+                        print("Operation object argument not passed properly. Encryption aborted.")
 
         except FileNotFoundError:
             print("No File Argument")
@@ -272,8 +284,8 @@ class Decryption_Page(Page):
                                  message="Invalid password entered.")
             return
         try:
-            suggested_directory = utils.get_file_directory(data.selected_files[0])
-            saving_directory = save_files_at(suggested_directory)
+            suggested_directory = utils.get_parent_directory(data.selected_files[0])
+            saving_directory = save_filesorfolders_at(suggested_directory)
 
             if saving_directory:
                 selected_file_count = len(data.selected_files)
@@ -473,6 +485,6 @@ def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested
         if on_cancelled != None:
             on_cancelled()
 
-def save_files_at(suggested_dir: str)->str:
+def save_filesorfolders_at(suggested_dir: str)->str:
     return filedialog.askdirectory(initialdir=suggested_dir, mustexist=True)
 
