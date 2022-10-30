@@ -12,7 +12,7 @@ EncryptionContextMenuHandler::~EncryptionContextMenuHandler()
 EncryptionContextMenuHandler::EncryptionContextMenuHandler() : m_objRefCount(1)
 {
     m_pidlFolder = NULL;
-    m_fileCount = 0;
+    m_folderOperation = FALSE;
     m_pDataObj = NULL;
     m_hRegKey = NULL;
     InterlockedIncrement(&g_classObjCount);
@@ -95,28 +95,37 @@ HRESULT __stdcall EncryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
         if (SUCCEEDED(m_pDataObj->GetData(&fe, &medium)))
         {
             // Get the count of files dropped.
-            m_fileCount = DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0);
+            UINT fileorfolderCount = DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0);
 
             // Get the file names from the CF_HDROP.
-            if (m_fileCount)
+            if (fileorfolderCount)
             {
-                for (int i = 0; i < m_fileCount; i++)
+                for (int i = 0; i < fileorfolderCount; i++)
                 {
-                    wchar_t	sz_File[MAX_PATH];
-                    DragQueryFile((HDROP)medium.hGlobal, i, sz_File,
-                        sizeof(sz_File) / sizeof(TCHAR));
+                    wchar_t	sz_File_or_Folder[MAX_PATH];
+                    DragQueryFile((HDROP)medium.hGlobal, i, sz_File_or_Folder,
+                        sizeof(sz_File_or_Folder) / sizeof(TCHAR));
 
-                    //Don't show encryption context menu item for .exe or .enc files
-                    std::wstring exeExtension = L".exe";
-                    std::wstring encExtension = L".enc";
-                    if (exeExtension.compare(PathFindExtensionW(sz_File)) == 0 || encExtension.compare(PathFindExtensionW(sz_File)) == 0)
+                    if (PathIsDirectory(sz_File_or_Folder))     //If selected object is a folder; add to list and skip over file addition
                     {
-                        ReleaseStgMedium(&medium);
-                        m_szFiles.clear();
-                        return E_NOTIMPL;
+                        m_szFolders.push_back(std::wstring(sz_File_or_Folder));
+                        m_folderOperation = TRUE;
                     }
 
-                    m_szFiles.push_back(std::wstring(sz_File));
+                    if (!m_folderOperation)
+                    {
+                        //Don't show encryption context menu item for .exe or .enc files
+                        std::wstring exeExtension = L".exe";
+                        std::wstring encExtension = L".enc";
+                        if (exeExtension.compare(PathFindExtensionW(sz_File_or_Folder)) == 0 || encExtension.compare(PathFindExtensionW(sz_File_or_Folder)) == 0)
+                        {
+                            ReleaseStgMedium(&medium);
+                            m_szFiles.clear();
+                            return E_NOTIMPL;
+                        }
+
+                        m_szFiles.push_back(std::wstring(sz_File_or_Folder));
+                    }
                 }
             }
 
@@ -142,7 +151,7 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
     myItem.fMask = MIIM_STRING | MIIM_ID;
     myItem.wID = idCmdFirst;
 
-    LPCSTR itemTypeDataStr = "Encrypt File(s)";
+    LPCSTR itemTypeDataStr = m_folderOperation ? "Encrypt Folder(s)" : "Encrypt File(s)";      
     USES_CONVERSION;
     LPWSTR itemTypeData = A2W(itemTypeDataStr);
     myItem.dwTypeData = itemTypeData;
@@ -158,14 +167,31 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 HRESULT __stdcall EncryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINFO* pici)
 {
     std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main.exe";
+    std::wstring operationObject = m_folderOperation ? L"--folder" : L"--file";
     std::wstring operationMode = L"--encrypt";
-    std::wstring argString = operationMode;
+    std::wstring argString = operationObject + L" " + operationMode;
 
-    for (int i = 0; i < m_fileCount; i++)
+    if (m_folderOperation)
     {
-        //MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
-        argString += L" " + m_szFiles[i];
+        int folderCount = m_szFolders.size();
+
+        for (int i = 0; i < folderCount; i++)
+        {
+            //MessageBox(NULL, m_szFolders[i].c_str(), L"InvokeCommand()", MB_OK);
+            argString += L" " + m_szFolders[i];
+        }
     }
+    else
+    {
+        int fileCount = m_szFiles.size();
+
+        for (int i = 0; i < fileCount; i++)
+        {
+            //MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
+            argString += L" " + m_szFiles[i];
+        }
+    }
+    
     //MessageBoxA(NULL, argString.c_str(), "Result", MB_OK);
 
     STARTUPINFO si;

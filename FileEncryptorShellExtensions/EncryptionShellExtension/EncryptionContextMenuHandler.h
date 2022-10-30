@@ -9,11 +9,12 @@ extern UINT g_classObjCount;
 class EncryptionContextMenuHandler : public IShellExtInit, IContextMenu, IUnknown
 {
 private:
-	LPITEMIDLIST					m_pidlFolder;			//The folder's PIDL
-	UINT							m_fileCount;
-	std::vector<std::wstring>		m_szFiles;				//The file name
+	LPITEMIDLIST					m_pidlFolder;			//The folder's PIDL (In case of right clicking directory background i.e. empty space)
+	std::vector<std::wstring>		m_szFiles;				//The file paths
+	std::vector<std::wstring>		m_szFolders;			//The folder paths
 	IDataObject*					m_pDataObj;				//The IDataObject pointer
 	HKEY							m_hRegKey;				//The file or folder's registry key
+	BOOL							m_folderOperation;		//Folder operation overrides file operation
 
 protected:
 	DWORD m_objRefCount;
