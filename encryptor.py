@@ -2,6 +2,7 @@ from cryptography.fernet import Fernet
 from keygen import get_key
 import utils
 import os
+from pathlib import Path
 
 
 def encrypt_msg(msg: str | bytes, password: str) -> bytes:
@@ -25,11 +26,15 @@ def encrypt_file_content(filepath: str, password: str, add_extension=False) -> b
     except FileNotFoundError:
         print("File Not Found")
 
-def encrypt_file(filepath: str, password: str, savepath: str, add_extension=True):
+def encrypt_file(filepath: str, password: str, save_directory: str, add_extension=True):
     try:
         encrypted_content = encrypt_file_content(filepath, password, add_extension)
 
-        with open(savepath, "wb") as f:
+        save_file_name = utils.get_file_name(filepath, with_extension=True)
+        encrypted_file_extension = ".enc"
+        save_file_path = save_directory + "\\" + save_file_name + encrypted_file_extension
+
+        with open(save_file_path, "wb") as f:
             f.write(encrypted_content)
     except FileNotFoundError:
         print("File Not Found")
@@ -40,12 +45,7 @@ def encrypt_files(filepaths: list, password: str, save_directory: str, add_exten
         files_encrypted = 0
 
         for filepath in filepaths:
-            #file_directory = utils.get_file_directory(filepath)
-            save_file_name = utils.get_file_name(filepath, with_extension=True)
-            encrypted_file_extension = ".enc"
-            save_file_path = save_directory + "\\" + save_file_name + encrypted_file_extension
-
-            encrypt_file(filepath, password, save_file_path, add_extension)
+            encrypt_file(filepath, password, save_directory, add_extension)
 
             files_encrypted += 1
             if on_file_encrypted != None:
@@ -60,19 +60,18 @@ def encrypt_files(filepaths: list, password: str, save_directory: str, add_exten
 #Top level folders passed in cmd arguments; handle sub folders here separately
 def encrypt_folder(folderpath: str, password: str, savepath: str, on_file_encrypted=lambda x: None):
     try:
-        for dir, sub_dirname_list, filename_list in os.walk(folderpath):
-            #Create a folder structure similar to what was found in the original folder hierarchy
-            try:
-                encrypted_folder_path = savepath + "\\" + utils.get_folder_name(dir) + ".enc"
-                os.mkdir(encrypted_folder_path)
-            except Exception:
-                print(f"Directory {encrypted_folder_path} could not be created.")
-                return
-
-            filepaths = [dir + "\\" + filename for filename in filename_list]
-            encrypt_files(filepaths, password, encrypted_folder_path, True, on_file_encrypted=on_file_encrypted, on_encryption_complete=None)
+        foldername = utils.get_folder_name(folderpath)
+        encrypted_folder_path = savepath + "\\" + f"{foldername}.enc"
+        os.mkdir(encrypted_folder_path)
+        scan_dir = os.scandir(folderpath)
+        for obj in scan_dir:
+            if obj.is_dir():
+                encrypt_folder(obj.path, password, encrypted_folder_path, on_file_encrypted)
+            elif obj.is_file():
+                encrypt_file(obj.path, password, encrypted_folder_path, True)
+                on_file_encrypted(0)
     except FileNotFoundError:
-        print("Folder Not Found")
+        print(f"Folder {encrypted_folder_path} could not be created.")
 
 #Top level folders passed in cmd arguments; handle sub folders separately
 def encrypt_folders(folderpaths: list, password: str, save_directory: str, on_file_encrypted=lambda x: None, on_encryption_complete=lambda x: None):
