@@ -206,7 +206,7 @@ class Encryption_Page(Page):
                         selected_file_count = len(data.selected_files_or_folders)
                         show_progress(current_page=self, total_file_count=selected_file_count)
 
-                        new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files, created_password, saving_directory, True, 
+                        new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files_or_folders, created_password, saving_directory, True, 
                             lambda file_count: show_processed_filecount(file_count),
                             lambda file_count: show_completion(page_collection["Progress"], file_count),))
                         new_thread.start()
