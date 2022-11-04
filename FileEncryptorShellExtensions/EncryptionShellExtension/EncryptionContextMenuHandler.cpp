@@ -143,7 +143,7 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 {
     //MessageBox(NULL, L"Shell Extension Menu", L"QueryContextMenu()", MB_OK);
 
-    if (uFlags & CMF_DEFAULTONLY)
+    if (!(uFlags & CMF_RESERVED))
         return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, 0);
 
     MENUITEMINFO myItem = {};
