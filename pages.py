@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
-from encryptor import encrypt_files, encrypt_folders
+from encryptor import Encryptor
 from decryptor import decrypt_files
 import utils
 import data
@@ -206,7 +206,7 @@ class Encryption_Page(Page):
                         selected_file_count = len(data.selected_files_or_folders)
                         show_progress(current_page=self, total_file_count=selected_file_count)
 
-                        new_thread = threading.Thread(target=encrypt_files, args=(data.selected_files_or_folders, created_password, saving_directory, True, 
+                        new_thread = threading.Thread(target=Encryptor.encrypt_files, args=(data.selected_files_or_folders, created_password, saving_directory, True, 
                             lambda file_count: show_processed_filecount(file_count),
                             lambda file_count: show_completion(page_collection["Progress"], file_count),))
                         new_thread.start()
@@ -214,7 +214,7 @@ class Encryption_Page(Page):
                         total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in data.selected_files_or_folders])
                         show_progress(current_page=self, total_file_count=total_files)
 
-                        new_thread = threading.Thread(target=encrypt_folders, args=(data.selected_files_or_folders, created_password, saving_directory, 
+                        new_thread = threading.Thread(target=Encryptor.encrypt_folders, args=(data.selected_files_or_folders, created_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
                             lambda file_count: show_completion(page_collection["Progress"], file_count),))
                         new_thread.start()
@@ -364,10 +364,6 @@ class Progress_Page(Page):
         self.master.geometry(f'{width}x{height}+{x}+{y}')
         self.master.resizable(0, 0)
 
-    def listen_for_completion(self):
-        while not self.progress_finished:
-            pass
-
     def animate_label(self, label: tk.Label, dots: str):
         dots += ". "
         if len(dots) > 6:
@@ -381,7 +377,8 @@ class Progress_Page(Page):
 
     def set_processed_filecount(self, file_count: int):
         self.processed_filecount = file_count
-        self.static_label.config(text="Encrypting files {files_encrypting}/{total_files}".format(files_encrypting=self.processed_filecount+1, total_files=self.total_files_for_processing))
+        if self.processed_filecount < self.total_files_for_processing:
+            self.static_label.config(text="Encrypting files {files_encrypting}/{total_files}".format(files_encrypting=self.processed_filecount+1, total_files=self.total_files_for_processing))
 
     def set_progress_finished(self):
         self.progress_finished = True
