@@ -44,6 +44,10 @@ class Decryptor:
 
             save_file_path = save_directory + "\\" + save_file_name
 
+            while os.path.exists(save_file_path):
+                save_file_name = utils.add_nonduplicate_identifier(save_file_name)
+                save_file_path = save_directory + "\\" + save_file_name
+
             with open(save_file_path, "wb") as f:
                 f.write(decrypted_content)
         except FileNotFoundError:

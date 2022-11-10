@@ -36,7 +36,12 @@ class Encryptor:
 
             save_file_name = utils.get_file_name(filepath, with_extension=True)
             encrypted_file_extension = ".enc"
-            save_file_path = save_directory + "\\" + save_file_name + encrypted_file_extension
+            save_file_name += encrypted_file_extension
+            save_file_path = save_directory + "\\" + save_file_name
+
+            while os.path.exists(save_file_path):
+                save_file_name = utils.add_nonduplicate_identifier(save_file_name)
+                save_file_path = save_directory + "\\" + save_file_name
 
             with open(save_file_path, "wb") as f:
                 f.write(encrypted_content)

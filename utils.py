@@ -12,10 +12,10 @@ def get_file_name(filepath: str, with_extension: bool = True):
     return filename if with_extension else filename.replace(get_file_extension(filename), "")
 
 
-def get_file_extension(filename: str):
+def get_file_extension(filename_or_path: str):
     extension_rev = ""
-    for i in range(len(filename) - 1, -1, -1):
-        ch = filename[i]
+    for i in range(len(filename_or_path) - 1, -1, -1):
+        ch = filename_or_path[i]
         extension_rev += ch
         if ch == ".":
             break
@@ -80,3 +80,8 @@ def get_all_filescount_under_directory(directory: str)->int:
     for dir, sub_dirname_list, filename_list in os.walk(directory):
         file_count += len(filename_list)
     return file_count
+
+def add_nonduplicate_identifier(filename_or_path: str)->str:
+    file_extension = get_file_extension(filename_or_path)
+    modified_filename_or_path = filename_or_path.replace(file_extension, f"(1){file_extension}")
+    return modified_filename_or_path
