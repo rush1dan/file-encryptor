@@ -80,6 +80,8 @@ class Decryptor:
         try:
             foldername = utils.get_folder_name(folderpath)
             decrypted_folder_path = savepath + "\\" + f"{foldername}.enc"
+            while os.path.exists(decrypted_folder_path):
+                decrypted_folder_path += "(1)"
             os.mkdir(decrypted_folder_path)
             scan_dir = os.scandir(folderpath)
             for obj in scan_dir:

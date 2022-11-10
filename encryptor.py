@@ -71,6 +71,8 @@ class Encryptor:
         try:
             foldername = utils.get_folder_name(folderpath)
             encrypted_folder_path = savepath + "\\" + f"{foldername}.enc"
+            while os.path.exists(encrypted_folder_path):
+                encrypted_folder_path += "(1)"
             os.mkdir(encrypted_folder_path)
             scan_dir = os.scandir(folderpath)
             for obj in scan_dir:
