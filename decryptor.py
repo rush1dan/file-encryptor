@@ -79,7 +79,8 @@ class Decryptor:
     def decrypt_folder(cls, folderpath: str, password: str, savepath: str, on_file_decrypted=lambda x: None):
         try:
             foldername = utils.get_folder_name(folderpath)
-            decrypted_folder_path = savepath + "\\" + f"{foldername}.enc"
+            foldername = foldername.replace(".enc", "")
+            decrypted_folder_path = savepath + "\\" + foldername
             while os.path.exists(decrypted_folder_path):
                 decrypted_folder_path += "(1)"
             os.mkdir(decrypted_folder_path)
