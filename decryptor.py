@@ -59,11 +59,7 @@ class Decryptor:
             total_files = len(filepaths)
 
             for filepath in filepaths:
-                #file_directory = utils.get_file_directory(filepath)
-                save_file_name = utils.get_file_name(filepath, with_extension=False)
-                save_file_path_without_extension = save_directory + "\\" + save_file_name
-
-                cls.decrypt_file(filepath, password, save_file_path_without_extension)
+                cls.decrypt_file(filepath, password, save_directory)
 
                 cls.files_decrypted += 1
                 if on_file_decrypted != None:
