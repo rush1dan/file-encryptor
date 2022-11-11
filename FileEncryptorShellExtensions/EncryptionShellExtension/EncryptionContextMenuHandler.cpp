@@ -94,7 +94,7 @@ HRESULT __stdcall EncryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
 
         if (SUCCEEDED(m_pDataObj->GetData(&fe, &medium)))
         {
-            // Get the count of files dropped.
+            // Get the count of files or folders dropped.
             UINT fileorfolderCount = DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0);
 
             // Get the file names from the CF_HDROP.
@@ -219,5 +219,7 @@ HRESULT __stdcall EncryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
 
 HRESULT __stdcall EncryptionContextMenuHandler::GetCommandString(UINT_PTR idCmd, UINT uType, UINT* pReserved, CHAR* pszName, UINT cchMax)
 {
+    //Gets information about a shortcut menu command, including the help string and the language-independent, or canonical, name for the command.
+    //Not necessary yet.
     return S_OK;
 }
