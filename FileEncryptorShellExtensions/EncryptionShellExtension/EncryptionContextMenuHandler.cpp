@@ -114,14 +114,14 @@ HRESULT __stdcall EncryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
 
                     if (!m_folderOperation)
                     {
-                        //Don't show encryption context menu item for .enc files
-                        std::wstring encExtension = L".enc";
-                        if (encExtension.compare(PathFindExtension(sz_File_or_Folder)) == 0)
-                        {
-                            ReleaseStgMedium(&medium);
-                            m_szFiles.clear();
-                            return E_NOTIMPL;
-                        }
+                        ////Don't show encryption context menu item for .enc files
+                        //std::wstring encExtension = L".enc";
+                        //if (encExtension.compare(PathFindExtension(sz_File_or_Folder)) == 0)
+                        //{
+                        //    ReleaseStgMedium(&medium);
+                        //    m_szFiles.clear();
+                        //    return E_NOTIMPL;
+                        //}
 
                         m_szFiles.push_back(std::wstring(sz_File_or_Folder));
                     }
