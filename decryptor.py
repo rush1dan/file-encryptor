@@ -1,4 +1,4 @@
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from keygen import get_key
 import utils
 import os
@@ -6,13 +6,21 @@ import os
 
 class Decryptor:
     files_decrypted = 0
+    on_error_callback = None
 
     @classmethod
     def decrypt_msg(cls, encrypted_msg: str | bytes, password: str) -> bytes:
         encoded_text = encrypted_msg.encode() if type(
             encrypted_msg) == str else encrypted_msg
         cipher = Fernet(get_key(password=password))
-        decrypted_text = cipher.decrypt(encoded_text)
+        try:
+            decrypted_text = cipher.decrypt(encoded_text)
+        except InvalidToken:
+            if cls.on_error_callback != None:
+                cls.on_error_callback("Incorrect Password Error", "Incorrect password entered.")
+            print("Incorrect password")
+            raise InvalidToken
+
 
         return decrypted_text
 
@@ -54,7 +62,9 @@ class Decryptor:
             print("File Not Found")
 
     @classmethod
-    def decrypt_files(cls, filepaths: list, password: str, save_directory: str, on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None):
+    def decrypt_files(cls, filepaths: list, password: str, save_directory: str, 
+        on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None, on_error=lambda x, y: None):
+        cls.on_error_callback = on_error
         try:
             total_files = len(filepaths)
 
@@ -94,7 +104,9 @@ class Decryptor:
 
     #Top level folders passed in cmd arguments; handle sub folders separately
     @classmethod
-    def decrypt_folders(cls, folderpaths: list, password: str, save_directory: str, on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None):
+    def decrypt_folders(cls, folderpaths: list, password: str, save_directory: str, 
+        on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None, on_error=lambda x, y: None):
+        cls.on_error_callback = on_error
         try:
             total_folders = len(folderpaths)
 

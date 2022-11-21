@@ -4,12 +4,9 @@ from tkinter import filedialog
 from encryptor import Encryptor
 from decryptor import Decryptor
 import utils
-import data
+from data import Data
 import threading
 from PIL import Image, ImageTk
-
-
-page_collection = {}
 
 class Page(tk.Frame):
     def __init__(self, *args, **kwargs):
@@ -28,40 +25,48 @@ class Page(tk.Frame):
         self.pack_forget()
 
     def clear_entry(self):
-        None
+        pass
 
     def primary_focus(self):
-        None
+        pass
 
+    def on_error(self, error_title: str, error_msg: str):
+        pass
 
-def setup_all_pages(main_window: tk.Widget, window_width: int, window_height: int, start_page: str):
+class Page_Manager:
+    page_collection = {}
+    current_page = None
 
-    options_page = Options_Page(master=main_window, width=window_width, height=window_height)
-    page_collection["Options"] = options_page
+    @classmethod
+    def setup_all_pages(cls, main_window: tk.Widget, window_width: int, window_height: int, start_page: str):
 
-    encryption_page = Encryption_Page(master=main_window, width=window_width, height=window_height)
-    page_collection["Encrypt"] = encryption_page
+        options_page = Options_Page(master=main_window, width=window_width, height=window_height)
+        cls.page_collection["Options"] = options_page
 
-    decryption_page = Decryption_Page(master=main_window, width=window_width, height=window_height)
-    page_collection["Decrypt"] = decryption_page
+        encryption_page = Encryption_Page(master=main_window, width=window_width, height=window_height)
+        cls.page_collection["Encrypt"] = encryption_page
 
-    progress_page = Progress_Page(master=main_window, width=window_width, height=window_height)
-    page_collection["Progress"] = progress_page
+        decryption_page = Decryption_Page(master=main_window, width=window_width, height=window_height)
+        cls.page_collection["Decrypt"] = decryption_page
 
-    complete_page = Complete_Page(master=main_window, width=window_width, height=window_height)
-    page_collection["Complete"] = complete_page
+        progress_page = Progress_Page(master=main_window, width=window_width, height=window_height)
+        cls.page_collection["Progress"] = progress_page
 
-    show_page(page_to_show=start_page)
+        complete_page = Complete_Page(master=main_window, width=window_width, height=window_height)
+        cls.page_collection["Complete"] = complete_page
 
+        cls.show_page(page_to_show=start_page)
 
-def show_page(current_page: Page = None, page_to_show="Options") -> Page:
-    if current_page:
-        current_page.clear_entry()
-        current_page.hide()
+    @classmethod
+    def show_page(cls, page_to_show="Options") -> Page:
+        if cls.current_page:
+            cls.current_page.clear_entry()
+            cls.current_page.hide()
 
-    page = page_collection[page_to_show]
-    page.show()
-    return page
+        page = cls.page_collection[page_to_show]
+        cls.current_page = page
+        page.show()
+        return page
 
 
 class Options_Page(Page):
@@ -91,14 +96,14 @@ class Options_Page(Page):
             master=frm_btn, relief=tk.RAISED, borderwidth=0)
         frm_btn_encrypt.grid(row=0, column=0)
         btn_encrypt = tk.Button(master=frm_btn_encrypt,
-                                text="Encrypt", command=lambda: show_page(current_page=self, page_to_show="Encrypt"), font=("Arial", 15), border=6, borderwidth=6)
+                                text="Encrypt", command=lambda: Page_Manager.show_page(page_to_show="Encrypt"), font=("Arial", 15), border=6, borderwidth=6)
         btn_encrypt.pack(pady=20)
 
         frm_btn_decrypt = tk.Frame(
             master=frm_btn, relief=tk.RAISED, borderwidth=0)
         frm_btn_decrypt.grid(row=0, column=1)
         btn_decrypt = tk.Button(master=frm_btn_decrypt,
-                                text="Decrypt", command=lambda: show_page(current_page=self, page_to_show="Decrypt"), font=("Arial", 15), border=6, borderwidth=6)
+                                text="Decrypt", command=lambda: Page_Manager.show_page(page_to_show="Decrypt"), font=("Arial", 15), border=6, borderwidth=6)
         btn_decrypt.pack(pady=20)
 
 
@@ -174,6 +179,10 @@ class Encryption_Page(Page):
 
         super().show()
 
+    def on_error(self, error_title: str, error_msg: str):
+        self.master.destroy()
+        messagebox.showerror(title=error_title, message=error_msg)
+
     def primary_focus(self):
         return self.ent_createpassword.focus_set()
 
@@ -197,26 +206,26 @@ class Encryption_Page(Page):
             return
 
         try:
-            suggested_directory = utils.get_parent_directory(data.selected_files_or_folders[0])
+            suggested_directory = utils.get_parent_directory(Data.selected_files_or_folders[0])
             saving_directory = save_filesorfolders_at(suggested_directory)
 
             if saving_directory:
-                match data.operation_object:
-                    case data.OperationObject.FILE:
-                        selected_file_count = len(data.selected_files_or_folders)
-                        show_progress(current_page=self, total_file_count=selected_file_count)
+                match Data.operation_object:
+                    case Data.OperationObject.FILE:
+                        selected_file_count = len(Data.selected_files_or_folders)
+                        show_progress(total_file_count=selected_file_count)
 
-                        new_thread = threading.Thread(target=Encryptor.encrypt_files, args=(data.selected_files_or_folders, created_password, saving_directory, True, 
+                        new_thread = threading.Thread(target=Encryptor.encrypt_files, args=(Data.selected_files_or_folders, created_password, saving_directory, True, 
                             lambda file_count: show_processed_filecount(file_count),
-                            lambda file_count: show_completion(page_collection["Progress"], file_count),))
+                            lambda file_count: show_completion(file_count),))
                         new_thread.start()
-                    case data.OperationObject.FOLDER:
-                        total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in data.selected_files_or_folders])
-                        show_progress(current_page=self, total_file_count=total_files)
+                    case Data.OperationObject.FOLDER:
+                        total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in Data.selected_files_or_folders])
+                        show_progress(total_file_count=total_files)
 
-                        new_thread = threading.Thread(target=Encryptor.encrypt_folders, args=(data.selected_files_or_folders, created_password, saving_directory, 
+                        new_thread = threading.Thread(target=Encryptor.encrypt_folders, args=(Data.selected_files_or_folders, created_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
-                            lambda file_count: show_completion(page_collection["Progress"], file_count),))
+                            lambda file_count: show_completion(file_count),))
                         new_thread.start()
                     case _:
                         print("Operation object argument not passed properly. Encryption aborted.")
@@ -268,6 +277,10 @@ class Decryption_Page(Page):
 
         super().show()
 
+    def on_error(self, error_title: str, error_msg: str):
+
+        messagebox.showerror(title=error_title, message=error_msg)
+
     def primary_focus(self):
         return self.ent_enterpassword.focus_set()
 
@@ -284,26 +297,27 @@ class Decryption_Page(Page):
                                  message="Invalid password entered.")
             return
         try:
-            suggested_directory = utils.get_parent_directory(data.selected_files_or_folders[0])
+            suggested_directory = utils.get_parent_directory(Data.selected_files_or_folders[0])
             saving_directory = save_filesorfolders_at(suggested_directory)
 
             if saving_directory:
-                match data.operation_object:
-                    case data.OperationObject.FILE:
-                        selected_file_count = len(data.selected_files_or_folders)
-                        show_progress(current_page=self, total_file_count=selected_file_count)
+                match Data.operation_object:
+                    case Data.OperationObject.FILE:
+                        selected_file_count = len(Data.selected_files_or_folders)
+                        show_progress(total_file_count=selected_file_count)
 
-                        new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(data.selected_files_or_folders, entered_password, saving_directory, 
+                        new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(Data.selected_files_or_folders, entered_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
-                            lambda file_count: show_completion(page_collection["Progress"], file_count),))
+                            lambda file_count: show_completion(file_count),
+                            lambda error_title, error_msg: self.on_error(error_title, error_msg)))
                         new_thread.start()
-                    case data.OperationObject.FOLDER:
-                        total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in data.selected_files_or_folders])
-                        show_progress(current_page=self, total_file_count=total_files)
+                    case Data.OperationObject.FOLDER:
+                        total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in Data.selected_files_or_folders])
+                        show_progress(total_file_count=total_files)
 
-                        new_thread = threading.Thread(target=Decryptor.decrypt_folders, args=(data.selected_files_or_folders, entered_password, saving_directory, 
+                        new_thread = threading.Thread(target=Decryptor.decrypt_folders, args=(Data.selected_files_or_folders, entered_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
-                            lambda file_count: show_completion(page_collection["Progress"], file_count),))
+                            lambda file_count: show_completion(file_count),))
                         new_thread.start()
                     case _:
                         print("Operation object argument not passed properly. Decryption aborted.")
@@ -341,10 +355,10 @@ class Progress_Page(Page):
 
         process_type = "Encrypt"
 
-        match data.operation_mode:
-            case data.OperationMode.ENCRYPTION:
+        match Data.operation_mode:
+            case Data.OperationMode.ENCRYPTION:
                 process_type = "Encrypt"
-            case data.OperationMode.DECRYPTION:
+            case Data.OperationMode.DECRYPTION:
                 process_type = "Decrypt"
             case _:
                 print("Operation mode argument not passed properly.")
@@ -418,10 +432,10 @@ class Complete_Page(Page):
 
         process_type = "Encrypt"
 
-        match data.operation_mode:
-            case data.OperationMode.ENCRYPTION:
+        match Data.operation_mode:
+            case Data.OperationMode.ENCRYPTION:
                 process_type = "Encrypt"
-            case data.OperationMode.DECRYPTION:
+            case Data.OperationMode.DECRYPTION:
                 process_type = "Decrypt"
             case _:
                 print("Operation mode argument not passed properly.")
@@ -457,22 +471,20 @@ class Complete_Page(Page):
         self.master.geometry(f'{width}x{height}+{x}+{y}')
         self.master.resizable(0, 0)
 
-
-def show_progress(current_page: Page, total_file_count: int):
-    progress_page = page_collection["Progress"]
+def show_progress(total_file_count: int):
+    progress_page = Page_Manager.page_collection["Progress"]
     progress_page.set_total_files_for_processing(total_file_count)
     
-    show_page(current_page=current_page, page_to_show="Progress")
+    Page_Manager.show_page("Progress")
 
 def show_processed_filecount(file_count: int):
-    progress_page = page_collection["Progress"]
+    progress_page = Page_Manager.page_collection["Progress"]
     progress_page.set_processed_filecount(file_count)
 
-def show_completion(current_page: Page, total_file_count: int):
-    page_collection["Progress"].set_progress_finished()
-    show_page(current_page=current_page, page_to_show="Complete")
+def show_completion(total_file_count: int):
+    Page_Manager.page_collection["Progress"].set_progress_finished()
+    Page_Manager.show_page("Complete")
     
-
 def save_file(content: bytes, defaultextension: str, filetypes: tuple, suggested_path=None, suggested_filename=None, 
               on_saving_initiated=None, on_file_saved=None, on_cancelled=None):
     file = filedialog.asksaveasfilename(title="Save As", initialdir=suggested_path if suggested_path != None else ".", 
