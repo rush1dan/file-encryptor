@@ -206,8 +206,11 @@ HRESULT __stdcall DecryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
         std::string message = "Decryption Application Failed to Start Due to:\nError Code " + std::to_string(GetLastError());
         MessageBoxA(NULL, message.c_str(), "Result", MB_ICONERROR | MB_OK);
     }
-    // Wait until child process exits.
-    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    /* This block of code written according to MS docs causes issues for uknown reasons
+    //// Wait until child process exits.
+    //WaitForSingleObject(pi.hProcess, INFINITE);
+    */
 
     // Close process and thread handles. 
     CloseHandle(pi.hProcess);
