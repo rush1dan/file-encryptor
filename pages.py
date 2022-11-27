@@ -321,7 +321,7 @@ class Decryption_Page(Page):
                         new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(Data.selected_files_or_folders, entered_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
                             lambda file_count: show_completion(file_count),
-                            lambda error_title, error_msg: self.on_error(error_title, error_msg)))
+                            lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
                     case Data.OperationObject.FOLDER:
                         total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in Data.selected_files_or_folders])

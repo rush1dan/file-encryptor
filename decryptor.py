@@ -6,21 +6,14 @@ import os
 
 class Decryptor:
     files_decrypted = 0
-    on_error_callback = None
 
     @classmethod
     def decrypt_msg(cls, encrypted_msg: str | bytes, password: str) -> bytes:
         encoded_text = encrypted_msg.encode() if type(
             encrypted_msg) == str else encrypted_msg
         cipher = Fernet(get_key(password=password))
-
-        try:
-            decrypted_text = cipher.decrypt(encoded_text)
-        except InvalidToken:
-            if cls.on_error_callback != None:
-                cls.on_error_callback("Incorrect Password Error", "Incorrect password entered.\nDecryption failed.")
-            print("Incorrect password")
-            raise InvalidToken
+        
+        decrypted_text = cipher.decrypt(encoded_text)
 
         return decrypted_text
 
@@ -64,7 +57,6 @@ class Decryptor:
     @classmethod
     def decrypt_files(cls, filepaths: list, password: str, save_directory: str, 
         on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None, on_error=lambda x, y: None):
-        cls.on_error_callback = on_error
         try:
             total_files = len(filepaths)
 
@@ -77,8 +69,18 @@ class Decryptor:
 
             if on_decryption_complete != None:
                 on_decryption_complete(total_files)
+        except InvalidToken:
+            if on_error != None:
+                on_error("Incorrect Password Error", "Incorrect password entered.\nDecryption failed.")
+            return
         except FileNotFoundError:
-            print("File(s) Not Found")
+            if on_error != None:
+                on_error("File Not Found Error", "File Not Found.")
+            return
+        except Exception as ex:
+            if on_error != None:
+                on_error(type(ex).__name__, str(ex))
+            return
 
     #Top level folders passed in cmd arguments; handle sub folders here separately
     @classmethod
