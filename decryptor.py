@@ -13,14 +13,14 @@ class Decryptor:
         encoded_text = encrypted_msg.encode() if type(
             encrypted_msg) == str else encrypted_msg
         cipher = Fernet(get_key(password=password))
+
         try:
             decrypted_text = cipher.decrypt(encoded_text)
         except InvalidToken:
             if cls.on_error_callback != None:
-                cls.on_error_callback("Incorrect Password Error", "Incorrect password entered.")
+                cls.on_error_callback("Incorrect Password Error", "Incorrect password entered.\nDecryption failed.")
             print("Incorrect password")
             raise InvalidToken
-
 
         return decrypted_text
 

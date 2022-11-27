@@ -30,15 +30,17 @@ class Page(tk.Frame):
     def primary_focus(self):
         pass
 
-    def on_error(self, error_title: str, error_msg: str):
+    def on_error(self, calling_thread: threading.Thread, error_title: str, error_msg: str):
         pass
 
 class Page_Manager:
     page_collection = {}
     current_page = None
+    main_window = None
 
     @classmethod
     def setup_all_pages(cls, main_window: tk.Widget, window_width: int, window_height: int, start_page: str):
+        cls.main_window = main_window
 
         options_page = Options_Page(master=main_window, width=window_width, height=window_height)
         cls.page_collection["Options"] = options_page
@@ -68,6 +70,15 @@ class Page_Manager:
         page.show()
         return page
 
+    @classmethod
+    def hide_main_window(cls):
+        if cls.main_window:
+            cls.main_window.withdraw()
+
+    @classmethod
+    def close_main_window(cls):
+        if cls.main_window:
+            cls.main_window.destroy()
 
 class Options_Page(Page):
     def __init__(self, *args, **kwargs):
@@ -277,9 +288,10 @@ class Decryption_Page(Page):
 
         super().show()
 
-    def on_error(self, error_title: str, error_msg: str):
-
+    def on_error(self,error_title: str, error_msg: str):
+        Page_Manager.hide_main_window()
         messagebox.showerror(title=error_title, message=error_msg)
+        Page_Manager.close_main_window()
 
     def primary_focus(self):
         return self.ent_enterpassword.focus_set()
