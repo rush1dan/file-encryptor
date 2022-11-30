@@ -329,7 +329,8 @@ class Decryption_Page(Page):
 
                         new_thread = threading.Thread(target=Decryptor.decrypt_folders, args=(Data.selected_files_or_folders, entered_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
-                            lambda file_count: show_completion(file_count),))
+                            lambda file_count: show_completion(file_count),
+                            lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
                     case _:
                         print("Operation object argument not passed properly. Decryption aborted.")

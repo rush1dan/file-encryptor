@@ -108,7 +108,6 @@ class Decryptor:
     @classmethod
     def decrypt_folders(cls, folderpaths: list, password: str, save_directory: str, 
         on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None, on_error=lambda x, y: None):
-        cls.on_error_callback = on_error
         try:
             total_folders = len(folderpaths)
 
@@ -117,8 +116,18 @@ class Decryptor:
 
             if on_decryption_complete != None:
                 on_decryption_complete(total_folders)
+        except InvalidToken:
+            if on_error != None:
+                on_error("Incorrect Password Error", "Incorrect password entered.\nDecryption failed.")
+            return
         except FileNotFoundError:
-            print("Folders(s) Not Found")
+            if on_error != None:
+                on_error("File Not Found Error", "File Not Found.")
+            return
+        except Exception as ex:
+            if on_error != None:
+                on_error(type(ex).__name__, str(ex))
+            return
 
     @classmethod
     def name_has_og_extension(cls, filename_or_path: str, extension: str)->bool:
