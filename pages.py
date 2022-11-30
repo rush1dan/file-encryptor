@@ -376,7 +376,7 @@ class Progress_Page(Page):
                 print("Operation mode argument not passed properly.")
 
         self.static_label = tk.Label(master=frm_staticlabel, 
-            text=f"{process_type}ing Files ({self.processed_filecount}/{self.total_files_for_processing})",
+            text=f"{process_type}ing Files ({self.processed_filecount+1}/{self.total_files_for_processing})",
             font=("Arial", 15))
         self.static_label.pack(side="right")
 
