@@ -207,9 +207,9 @@ class Encryption_Page(Page):
         created_password = self.ent_createpassword.get()
         confirmed_password = self.ent_confirmpassword.get()
 
-        if len(created_password) < 6:
+        if len(created_password) < 8:
             messagebox.showerror(title="Password Strength Error",
-                                 message="Password must be atleast 6 characters long.")
+                                 message="Password must be atleast 8 characters long.")
             return
         elif created_password != confirmed_password:
             messagebox.showerror(title="Password Mismatch Error",
@@ -304,7 +304,7 @@ class Decryption_Page(Page):
     def decryption_process(self):
         entered_password = self.ent_enterpassword.get()
 
-        if len(entered_password) < 6:
+        if len(entered_password) < 8:
             messagebox.showerror(title="Invalid Password Error",
                                  message="Invalid password entered.")
             return
