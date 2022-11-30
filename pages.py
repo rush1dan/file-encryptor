@@ -191,8 +191,9 @@ class Encryption_Page(Page):
         super().show()
 
     def on_error(self, error_title: str, error_msg: str):
-        self.master.destroy()
+        Page_Manager.hide_main_window()
         messagebox.showerror(title=error_title, message=error_msg)
+        Page_Manager.close_main_window()
 
     def primary_focus(self):
         return self.ent_createpassword.focus_set()
@@ -228,7 +229,8 @@ class Encryption_Page(Page):
 
                         new_thread = threading.Thread(target=Encryptor.encrypt_files, args=(Data.selected_files_or_folders, created_password, saving_directory, True, 
                             lambda file_count: show_processed_filecount(file_count),
-                            lambda file_count: show_completion(file_count),))
+                            lambda file_count: show_completion(file_count),
+                            lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
                     case Data.OperationObject.FOLDER:
                         total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in Data.selected_files_or_folders])
@@ -236,7 +238,8 @@ class Encryption_Page(Page):
 
                         new_thread = threading.Thread(target=Encryptor.encrypt_folders, args=(Data.selected_files_or_folders, created_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
-                            lambda file_count: show_completion(file_count),))
+                            lambda file_count: show_completion(file_count),
+                            lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
                     case _:
                         print("Operation object argument not passed properly. Encryption aborted.")

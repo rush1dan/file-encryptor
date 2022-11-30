@@ -49,7 +49,8 @@ class Encryptor:
             print("File Not Found")
 
     @classmethod
-    def encrypt_files(cls, filepaths: list, password: str, save_directory: str, add_extension=True, on_file_encrypted=lambda x: None, on_encryption_complete=lambda x: None):
+    def encrypt_files(cls, filepaths: list, password: str, save_directory: str, add_extension=True, 
+        on_file_encrypted=lambda x: None, on_encryption_complete=lambda x: None, on_error=lambda x, y: None):
         try:
             total_files = len(filepaths)
 
@@ -62,8 +63,10 @@ class Encryptor:
 
             if on_encryption_complete != None:
                 on_encryption_complete(total_files)
-        except FileNotFoundError:
-            print("File(s) Not Found")
+        except Exception as ex:
+            if on_error != None:
+                on_error(type(ex).__name__, str(ex))
+            return
 
     #Top level folders passed in cmd arguments; handle sub folders here separately
     @classmethod
@@ -88,7 +91,8 @@ class Encryptor:
 
     #Top level folders passed in cmd arguments; handle sub folders separately
     @classmethod
-    def encrypt_folders(cls, folderpaths: list, password: str, save_directory: str, on_file_encrypted=lambda x: None, on_encryption_complete=lambda x: None):
+    def encrypt_folders(cls, folderpaths: list, password: str, save_directory: str, 
+        on_file_encrypted=lambda x: None, on_encryption_complete=lambda x: None, on_error=lambda x, y: None):
         try:
             total_folders = len(folderpaths)
 
@@ -97,5 +101,7 @@ class Encryptor:
 
             if on_encryption_complete != None:
                 on_encryption_complete(total_folders)
-        except FileNotFoundError:
-            print("Folders(s) Not Found")
+        except Exception as ex:
+            if on_error != None:
+                on_error(type(ex).__name__, str(ex))
+            return
