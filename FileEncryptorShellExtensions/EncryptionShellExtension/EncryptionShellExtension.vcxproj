@@ -148,12 +148,14 @@
     <ClInclude Include="EncryptionShlExtGUID.h" />
     <ClInclude Include="EnShlExtClassFactory.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="IconBitmapUtils.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EncryptionContextMenuHandler.cpp" />
     <ClCompile Include="EncryptionShellExtension.cpp" />
     <ClCompile Include="EnShlExtClassFactory.cpp" />
+    <ClCompile Include="IconBitmapUtils.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

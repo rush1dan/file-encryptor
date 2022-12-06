@@ -3,6 +3,7 @@
 #include <string>
 #include <atlconv.h>
 #include <Shlwapi.h>
+#include "IconBitmapUtils.h"
 
 EncryptionContextMenuHandler::~EncryptionContextMenuHandler()
 {
@@ -147,8 +148,12 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 
     MENUITEMINFO myItem = {};
     myItem.cbSize = sizeof(MENUITEMINFO);
-    myItem.fMask = MIIM_STRING | MIIM_ID;
+    myItem.fMask = MIIM_STRING | MIIM_ID | MIIM_FTYPE | MIIM_BITMAP;
+    myItem.fType = MFT_STRING;
     myItem.wID = idCmdFirst;
+    std::wstring iconPath = L"C:\\PythonProjects\\FileEnDecryptor\\Resources\\checkmark.ico";
+    HICON icon = (HICON) LoadImage(NULL, iconPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_CREATEDIBSECTION);
+    myItem.hbmpItem = IconBitmapUtils::IconToBitmapPARGB32(icon, 16, 16);
 
     LPCSTR itemTypeDataStr = m_folderOperation ? "Encrypt Folder(s)" : "Encrypt File(s)";      
     USES_CONVERSION;
