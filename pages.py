@@ -30,7 +30,10 @@ class Page(tk.Frame):
     def primary_focus(self):
         pass
 
-    def on_error(self, calling_thread: threading.Thread, error_title: str, error_msg: str):
+    def on_error(self, error_title: str, error_msg: str):
+        pass
+
+    def show_info(self, info_title: str, info_msg: str, hide_mainwindow: bool):
         pass
 
 class Page_Manager:
@@ -232,6 +235,7 @@ class Encryption_Page(Page):
                             lambda file_count: show_completion(file_count),
                             lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
+
                     case Data.OperationObject.FOLDER:
                         total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in Data.selected_files_or_folders])
                         show_progress(total_file_count=total_files)
@@ -241,6 +245,7 @@ class Encryption_Page(Page):
                             lambda file_count: show_completion(file_count),
                             lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
+                        
                     case _:
                         print("Operation object argument not passed properly. Encryption aborted.")
 
@@ -291,10 +296,17 @@ class Decryption_Page(Page):
 
         super().show()
 
-    def on_error(self,error_title: str, error_msg: str):
+    def on_error(self, error_title: str, error_msg: str):
         Page_Manager.hide_main_window()
         messagebox.showerror(title=error_title, message=error_msg)
         Page_Manager.close_main_window()
+
+    def show_info(self, info_title: str, info_msg: str, hide_mainwindow: bool):
+        if hide_mainwindow:
+            Page_Manager.hide_main_window()
+        messagebox.showinfo(title=info_title, message=info_msg)
+        if hide_mainwindow:
+            Page_Manager.close_main_window()
 
     def primary_focus(self):
         return self.ent_enterpassword.focus_set()
@@ -311,30 +323,57 @@ class Decryption_Page(Page):
             messagebox.showerror(title="Invalid Password Error",
                                  message="Invalid password entered.")
             return
+
+        decryptable_files = []
+        decryptable_file_count = 0
+
+        match Data.operation_object:
+            case Data.OperationObject.FILE:
+                selected_files = Data.selected_files_or_folders
+                decryptable_files = [file for file in selected_files if utils.get_file_extension(file) == ".enc"]
+                decryptable_file_count = len(decryptable_files)
+                if decryptable_file_count == 0:
+                    self.show_info(info_title="", info_msg="Nothing to decrypt.", hide_mainwindow=True)
+                    return 
+
+            case Data.OperationObject.FOLDER:
+                selected_files_list_list = [utils.get_all_files_under_directory(folder) for folder in Data.selected_files_or_folders]
+                selected_files = []
+                for files_list in selected_files_list_list:
+                    selected_files.extend(files_list)
+                decryptable_files = [file for file in selected_files if utils.get_file_extension(file) == ".enc"]
+                decryptable_file_count = len(decryptable_files)
+                if decryptable_file_count == 0:
+                    self.show_info(info_title="", info_msg="Nothing to decrypt.", hide_mainwindow=True)
+                    return 
+
+            case _:
+                print("Operation object argument not passed properly. Decryption aborted.")
+
         try:
             suggested_directory = utils.get_parent_directory(Data.selected_files_or_folders[0])
             saving_directory = save_filesorfolders_at(suggested_directory)
 
             if saving_directory:
-                match Data.operation_object:
+                match Data.operation_object:              
                     case Data.OperationObject.FILE:
-                        selected_file_count = len(Data.selected_files_or_folders)
-                        show_progress(total_file_count=selected_file_count)
+                        show_progress(total_file_count=decryptable_file_count)
 
-                        new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(Data.selected_files_or_folders, entered_password, saving_directory, 
+                        new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(decryptable_files, entered_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
                             lambda file_count: show_completion(file_count),
                             lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
+
                     case Data.OperationObject.FOLDER:
-                        total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in Data.selected_files_or_folders])
-                        show_progress(total_file_count=total_files)
+                        show_progress(total_file_count=decryptable_file_count)
 
                         new_thread = threading.Thread(target=Decryptor.decrypt_folders, args=(Data.selected_files_or_folders, entered_password, saving_directory, 
                             lambda file_count: show_processed_filecount(file_count),
                             lambda file_count: show_completion(file_count),
                             lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
+
                     case _:
                         print("Operation object argument not passed properly. Decryption aborted.")
 
