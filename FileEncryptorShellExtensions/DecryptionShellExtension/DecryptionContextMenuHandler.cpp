@@ -151,7 +151,7 @@ HRESULT __stdcall DecryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
     myItem.fMask = MIIM_STRING | MIIM_ID | MIIM_FTYPE | MIIM_BITMAP;
     myItem.fType = MFT_STRING;
     myItem.wID = idCmdFirst;
-    std::wstring iconPath = L"C:\\PythonProjects\\FileEnDecryptor\\Resources\\checkmark1.ico";
+    std::wstring iconPath = L"C:\\PythonProjects\\FileEnDecryptor\\Resources\\DecryptionIcon16.ico";
     HICON icon = (HICON)LoadImage(NULL, iconPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_CREATEDIBSECTION);
     myItem.hbmpItem = IconBitmapUtils::IconToBitmapPARGB32(icon, 16, 16);
 
