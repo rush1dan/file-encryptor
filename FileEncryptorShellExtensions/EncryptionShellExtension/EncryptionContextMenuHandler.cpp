@@ -107,9 +107,12 @@ HRESULT __stdcall EncryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
                     DragQueryFile((HDROP)medium.hGlobal, i, sz_File_or_Folder,
                         sizeof(sz_File_or_Folder) / sizeof(TCHAR));
 
+                    std::wstring doubleQuotationWrappedItemName = sz_File_or_Folder;    //For handling space(s) and hyphen(s)s in item name
+                    doubleQuotationWrappedItemName = L"\"" + doubleQuotationWrappedItemName + L"\"";
+
                     if (PathIsDirectory(sz_File_or_Folder))     //If selected object is a folder; add to list and skip over file addition
                     {
-                        m_szFolders.push_back(std::wstring(sz_File_or_Folder));
+                        m_szFolders.push_back(doubleQuotationWrappedItemName);
                         m_folderOperation = TRUE;
                     }
 
@@ -124,7 +127,7 @@ HRESULT __stdcall EncryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
                         //    return E_NOTIMPL;
                         //}
 
-                        m_szFiles.push_back(std::wstring(sz_File_or_Folder));
+                        m_szFiles.push_back(doubleQuotationWrappedItemName);
                     }
                 }
             }
