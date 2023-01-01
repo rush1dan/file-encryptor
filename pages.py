@@ -220,6 +220,32 @@ class Encryption_Page(Page):
                                  message="Password confirmation doesn't match.")
             return
 
+        encryptable_files = []
+        encryptable_file_count = 0
+
+        match Data.operation_object:
+            case Data.OperationObject.FILE:
+                selected_files = Data.selected_files_or_folders
+                encryptable_files = selected_files
+                encryptable_file_count = len(encryptable_files)
+                if encryptable_file_count == 0:
+                    self.show_info(info_title="", info_msg="Nothing to encrypt.", hide_mainwindow=True)
+                    return 
+
+            case Data.OperationObject.FOLDER:
+                selected_files_list_list = [utils.get_all_files_under_directory(folder) for folder in Data.selected_files_or_folders]
+                selected_files = []
+                for files_list in selected_files_list_list:
+                    selected_files.extend(files_list)
+                encryptable_files = selected_files
+                encryptable_file_count = len(encryptable_files)
+                if encryptable_file_count == 0:
+                    self.show_info(info_title="", info_msg="Nothing to decrypt.", hide_mainwindow=True)
+                    return 
+
+            case _:
+                print("Operation object argument not passed properly. Decryption aborted.")
+
         try:
             suggested_directory = utils.get_parent_directory(Data.selected_files_or_folders[0])
             saving_directory = save_filesorfolders_at(suggested_directory)
@@ -227,21 +253,21 @@ class Encryption_Page(Page):
             if saving_directory:
                 match Data.operation_object:
                     case Data.OperationObject.FILE:
-                        selected_file_count = len(Data.selected_files_or_folders)
-                        show_progress(total_file_count=selected_file_count)
+                        set_files_in_progress(encryptable_files)
+                        show_progress(total_file_count=encryptable_file_count)
 
-                        new_thread = threading.Thread(target=Encryptor.encrypt_files, args=(Data.selected_files_or_folders, created_password, saving_directory, True, 
-                            lambda file_count: show_processed_filecount(file_count),
+                        new_thread = threading.Thread(target=Encryptor.encrypt_files, args=(encryptable_files, created_password, saving_directory, True, 
+                            lambda files_processed: show_updated_progress(files_processed),
                             lambda file_count: show_completion(file_count),
                             lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
 
                     case Data.OperationObject.FOLDER:
-                        total_files = sum([utils.get_all_filescount_under_directory(folder) for folder in Data.selected_files_or_folders])
-                        show_progress(total_file_count=total_files)
+                        set_files_in_progress(encryptable_files)
+                        show_progress(total_file_count=encryptable_file_count)
 
                         new_thread = threading.Thread(target=Encryptor.encrypt_folders, args=(Data.selected_files_or_folders, created_password, saving_directory, 
-                            lambda file_count: show_processed_filecount(file_count),
+                            lambda files_processed: show_updated_progress(files_processed),
                             lambda file_count: show_completion(file_count),
                             lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
@@ -357,19 +383,21 @@ class Decryption_Page(Page):
             if saving_directory:
                 match Data.operation_object:              
                     case Data.OperationObject.FILE:
+                        set_files_in_progress(decryptable_files)
                         show_progress(total_file_count=decryptable_file_count)
 
                         new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(decryptable_files, entered_password, saving_directory, 
-                            lambda file_count: show_processed_filecount(file_count),
+                            lambda files_processed: show_updated_progress(files_processed),
                             lambda file_count: show_completion(file_count),
                             lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
 
                     case Data.OperationObject.FOLDER:
+                        set_files_in_progress(decryptable_files)
                         show_progress(total_file_count=decryptable_file_count)
 
                         new_thread = threading.Thread(target=Decryptor.decrypt_folders, args=(Data.selected_files_or_folders, entered_password, saving_directory, 
-                            lambda file_count: show_processed_filecount(file_count),
+                            lambda files_processed: show_updated_progress(files_processed),
                             lambda file_count: show_completion(file_count),
                             lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                         new_thread.start()
@@ -384,6 +412,7 @@ class Progress_Page(Page):
     def __init__(self, *args, **kwargs):
         Page.__init__(self, *args, **kwargs)
         
+        self.files_in_progress = []
         self.processed_filecount = 0
         self.total_files_for_processing = 0
         self.progress_finished = False
@@ -395,18 +424,30 @@ class Progress_Page(Page):
         screenHeight = application_window.winfo_screenheight()
         screenAspectRatio = screenWidth / screenHeight
 
-        windowAspectRatio = 6
+        windowAspectRatio = 5
         windowWidth = int(screenWidth / 5)
         windowHeight = int(windowWidth / windowAspectRatio)
 
         self.center_window(windowWidth, windowHeight)
 
-        self.rowconfigure(0, minsize=int(windowHeight))
-        self.columnconfigure(0, minsize=int(windowWidth * 2.1 / 3))
-        self.columnconfigure(1, minsize=int(windowWidth * 0.9 / 3))
+        row0_height= int(windowHeight * 0.6)
+        row1_height = int(windowHeight * 0.4)
 
-        frm_staticlabel = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
-        frm_staticlabel.grid(row=0, column=0, sticky="e")
+        self.rowconfigure(0, minsize=row0_height)   
+        self.rowconfigure(1, minsize=row1_height)     
+        self.columnconfigure(0, minsize=windowWidth)
+
+        frm_process = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_process.grid(row=0, column=0, pady=(int(row0_height/4), 0), sticky="n")
+
+        frm_process.columnconfigure(0, minsize=int(windowWidth * 2.1 / 3))
+        frm_process.columnconfigure(1, minsize=int(windowWidth * 0.9 / 3))
+
+        frm_file = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
+        frm_file.grid(row=1, column=0, pady=(0, int(row1_height/4)), sticky="s")
+
+        frm_processlabel = tk.Frame(master=frm_process, relief=tk.FLAT, borderwidth=0)
+        frm_processlabel.grid(row=0, column=0, sticky="e")
 
         process_type = "Encrypt"
 
@@ -417,19 +458,25 @@ class Progress_Page(Page):
                 process_type = "Decrypt"
             case _:
                 print("Operation mode argument not passed properly.")
-
-        self.static_label = tk.Label(master=frm_staticlabel, 
-            text=f"{process_type}ing Files ({self.processed_filecount+1}/{self.total_files_for_processing})",
+        
+        initial_file_count = self.processed_filecount+1
+        self.process_label = tk.Label(master=frm_processlabel, 
+            text=f"{process_type}ing Files ({initial_file_count}/{self.total_files_for_processing})",
             font=("Arial", 15))
-        self.static_label.pack(side="right")
+        self.process_label.pack(side="right")
 
-        frm_dynamiclabel = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
-        frm_dynamiclabel.grid(row=0, column=1, sticky="w")
+        frm_dotprogresslabel = tk.Frame(master=frm_process, relief=tk.FLAT, borderwidth=0)
+        frm_dotprogresslabel.grid(row=0, column=1, sticky="w")
 
-        self.dynamic_label = tk.Label(master=frm_dynamiclabel, text="", font=("Arial", 15, "bold"))
-        self.dynamic_label.pack(side="left")
+        self.dotprogress_label = tk.Label(master=frm_dotprogresslabel, text="", font=("Arial", 15, "bold"))
+        self.dotprogress_label.pack(side="left")
 
-        self.animate_label(self.dynamic_label, "")
+        initial_file_index = 0
+        self.processingfile_label = tk.Label(master=frm_file, text=self.files_in_progress[initial_file_index], font=("Arial", 8),
+            wraplength=windowWidth - 10, justify="center")
+        self.processingfile_label.pack()
+
+        self.animate_label(self.dotprogress_label, "")
 
 
         super().show()
@@ -453,13 +500,18 @@ class Progress_Page(Page):
         if not self.progress_finished:
             self.master.after(500, lambda: self.animate_label(label, dots))
 
+    def set_files_in_progress(self, files: list):
+        self.files_in_progress = files
+
     def set_total_files_for_processing(self, file_count: int):
         self.total_files_for_processing = file_count
 
-    def set_processed_filecount(self, file_count: int):
-        self.processed_filecount = file_count
+    def set_updated_progress(self, files_processed: int):
+        self.processed_filecount = files_processed
         if self.processed_filecount < self.total_files_for_processing:
-            self.static_label.config(text="Encrypting files {files_encrypting}/{total_files}".format(files_encrypting=self.processed_filecount+1, total_files=self.total_files_for_processing))
+            self.process_label.config(text="Encrypting files {files_encrypting}/{total_files}".format(files_encrypting=self.processed_filecount+1, 
+                total_files=self.total_files_for_processing))
+            self.processingfile_label.config(text=self.files_in_progress[self.processed_filecount])
 
     def set_progress_finished(self):
         self.progress_finished = True
@@ -532,9 +584,13 @@ def show_progress(total_file_count: int):
     
     Page_Manager.show_page("Progress")
 
-def show_processed_filecount(file_count: int):
+def show_updated_progress(files_processed: int):
     progress_page = Page_Manager.page_collection["Progress"]
-    progress_page.set_processed_filecount(file_count)
+    progress_page.set_updated_progress(files_processed)
+
+def set_files_in_progress(filepaths: list[str]):
+    progress_page = Page_Manager.page_collection["Progress"]
+    progress_page.set_files_in_progress(filepaths)
 
 def show_completion(total_file_count: int):
     Page_Manager.page_collection["Progress"].set_progress_finished()
