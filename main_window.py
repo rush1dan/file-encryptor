@@ -18,7 +18,7 @@ class Window_Manager:
 
         window.title("Simple File Encryptor")
         cls.center_window(window, windowWidth, windowHeight)
-        photo = tk.PhotoImage(file = "C:\\PythonProjects\\FileEnDecryptor\\checkmark.png")
+        photo = tk.PhotoImage(file = "C:\\PythonProjects\\FileEnDecryptor\\Resources\\FileEncryptorIcon512.png")
         window.wm_iconphoto(False, photo)
 
         initial_page = "Encrypt" if Data.operation_mode == Data.OperationMode.ENCRYPTION else "Decrypt"
