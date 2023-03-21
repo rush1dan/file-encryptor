@@ -552,7 +552,7 @@ class Complete_Page(Page):
 
         icon_dimension = int(windowHeight/2)
         right_padding = int(icon_dimension/3.5)
-        img = Image.open("C:\\PythonProjects\\FileEnDecryptor\\checkmark.png")
+        img = Image.open("C:\\PythonProjects\\FileEnDecryptor\\Resources\\checkmark.png")
         completion_icon = ImageTk.PhotoImage(img.resize((icon_dimension, icon_dimension)))
         lbl_completion_icon = tk.Label(master=frm_completion_icon, image=completion_icon, compound="right")
         lbl_completion_icon.pack(side="right", padx=(0, right_padding))
