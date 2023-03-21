@@ -8,7 +8,7 @@ def run_from_right_click():
     Window_Manager.main_window()
 
 def run_as_standalone_application():
-    print("Right Click Menu Not Configured Properly.")
+    Window_Manager.show_info_window_only(title="File Encryptor", msg="Use application from right click context menu.")
     return None
 
 def process_cmd_args()->tuple[str, str, list]:
@@ -17,17 +17,19 @@ def process_cmd_args()->tuple[str, str, list]:
 
 if __name__ == "__main__":
     try:
-        operation_object, operation_mode, selected_files_or_folders = process_cmd_args()
-
-        #Set operation and file data:
-        Data.set_data(operation_object_arg=operation_object, operation_mode_arg=operation_mode, files_or_folders=selected_files_or_folders)
-
-        # Run the program:
         try:
-            run_from_right_click()
+            operation_object, operation_mode, selected_files_or_folders = process_cmd_args()
+
+            #Set operation and file data:
+            Data.set_data(operation_object_arg=operation_object, operation_mode_arg=operation_mode, files_or_folders=selected_files_or_folders)
+
+            # Run the program:
+            try:
+                run_from_right_click()
+            except:
+                print("Tkinter window not working!")
         except:
             run_as_standalone_application()
-                
     except Exception as ex:
         traceback.print_exc()
         input("Press Enter To Exit...")

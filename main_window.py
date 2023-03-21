@@ -1,6 +1,7 @@
 import tkinter as tk
 from data import Data
 from pages import Page_Manager
+from tkinter import messagebox
 
 class Window_Manager:
 
@@ -28,12 +29,16 @@ class Window_Manager:
 
     @classmethod
     def center_window(cls, window, width=300, height=200):
-            # get screen width and height
-            screen_width = window.winfo_screenwidth()
-            screen_height = window.winfo_screenheight()
+        # get screen width and height
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
 
-            # calculate position x and y coordinates
-            x = int((screen_width/2)) - int((width/2))
-            y = int((screen_height/2)) - int((height/2))
-            window.geometry(f'{width}x{height}+{x}+{y}')
-            window.resizable(0, 0)
+        # calculate position x and y coordinates
+        x = int((screen_width/2)) - int((width/2))
+        y = int((screen_height/2)) - int((height/2))
+        window.geometry(f'{width}x{height}+{x}+{y}')
+        window.resizable(0, 0)
+
+    @classmethod
+    def show_info_window_only(cls, title: str, msg: str):
+        messagebox.showinfo(title=title, message=msg)
