@@ -7,6 +7,8 @@ import utils
 from data import Data
 import threading
 from PIL import Image, ImageTk
+import base64
+import io
 
 class Page(tk.Frame):
     def __init__(self, *args, **kwargs):
@@ -552,8 +554,12 @@ class Complete_Page(Page):
 
         icon_dimension = int(windowHeight/2)
         right_padding = int(icon_dimension/3.5)
-        img = Image.open("C:\\PythonProjects\\FileEnDecryptor\\Resources\\checkmark.png")
-        completion_icon = ImageTk.PhotoImage(img.resize((icon_dimension, icon_dimension)))
+        #from https://www.motobit.com/util/base64-decoder-encoder.asp, 32*32 png to utf-8 base64 string
+        base64_png = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIxSURBVFhHxZdJTtxAFIYf7JoNSKwiMUqQNYM4AIMiEDlBuEIklHvABSKGS8AWLsAghgVSEMM6IQqLAAJUzf/72ea124VHxP/pteyqcv2vbVe5qkPyqindiK84mpYOGcPxMI67gzqRW8QV4hCxi/otBMtqkJPPiA3EHUzzwbZONoNrS8tJA7GKeDJdF8PJY9BHU7rCXnPKySjiNO6oKuyLfeaSkwnEb3N5PbBPJ+Ohi0f6z+s3j9AkPHdCn3l9t92HPo5G6GqkL0utdAJ7HkOvFulQK/+2pzALDsAnYMsD6NUyRDnObYOK0PwOUGfAk8SGmnOGKzLJZGDNI/FOtD0O9cRM6mQpLqxImvl/wHLbLsbJNyawZopKMwcKmRN642ffFJWilLmyxwRuTEEbvcCeJ0kzfwAst+1ScfKHCTybohYmwQ34Dmx5hM98Adh2XujtS2AK/AWUA8vA1lc2J2ECbY+AQ+YIWDGJH4D1tZiT8BGkvoRD4BIk9RPUYq4EL6F3GA6CC/CWKpjHw/DNiWgAnIM0VTInwUSUYyruB8kk7kFF83AqpnJ8jPrALxCZzwNbX5j4Y0Tp5/jRVKfCJI7BF2DLC6OL1cSK2cmKaeLFu8goAr3a9OFLMsrJCOK9F6UjoZtHXDq/RxJqnrEsj6R34sRcXg297Rn/PKnXrVnm6PCib/tK0Fdp6RBdRxTdnHJDm7k5Lbo9X8TRTLg9H8JxT1An8g9xjeD2fAf12/m25yIv3HMemvUOfcwAAAAASUVORK5CYII="
+        img_data_bytes = base64.b64decode(base64_png)
+        img = Image.open(io.BytesIO(img_data_bytes))
+        img_resized = img.resize((icon_dimension, icon_dimension))
+        completion_icon = ImageTk.PhotoImage(img_resized)
         lbl_completion_icon = tk.Label(master=frm_completion_icon, image=completion_icon, compound="right")
         lbl_completion_icon.pack(side="right", padx=(0, right_padding))
         lbl_completion_icon.image = completion_icon
