@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="base64.h" />
     <ClInclude Include="EncryptionContextMenuHandler.h" />
     <ClInclude Include="EncryptionShlExtGUID.h" />
     <ClInclude Include="EnShlExtClassFactory.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="base64.cpp" />
     <ClCompile Include="EncryptionContextMenuHandler.cpp" />
     <ClCompile Include="EncryptionShellExtension.cpp" />
     <ClCompile Include="EnShlExtClassFactory.cpp" />

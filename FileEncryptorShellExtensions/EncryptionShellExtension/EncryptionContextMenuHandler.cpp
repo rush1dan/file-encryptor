@@ -154,9 +154,8 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
     myItem.fMask = MIIM_STRING | MIIM_ID | MIIM_FTYPE | MIIM_BITMAP;
     myItem.fType = MFT_STRING;
     myItem.wID = idCmdFirst;
-    std::wstring iconPath = L"C:\\PythonProjects\\FileEnDecryptor\\Resources\\EncryptionIcon16.ico";
-    HICON icon = (HICON) LoadImage(NULL, iconPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE | LR_CREATEDIBSECTION);
-    myItem.hbmpItem = IconBitmapUtils::IconToBitmapPARGB32(icon, 16, 16);
+    std::string base64Icon = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAB2AAAAdgFOeyYIAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAeFJREFUOI2Nkz9oU1EUxn/v5iavCbwoJW3aqqSgDl0Uo2ihjg6CQ0fBJeAgxVXoEhwUUbrp5CAiBBcdXHRrcJQ0LkUNpCpKJMSm1ca8mLwk759DTEr6XiAHDtxzz/k+znfOvYqu6yYg8bFabY87t29st1tdreuoE1IxO83G7seNzW/LOzvNKoDwA/bB6dXrBNTETEBOhMOB5p4QQs4kFi9cXDy9FYtFZgEUXdfNcrksi8XiEMHrV4+R4Xnsdpm7D56gadqLVCq10v279W5ufmlhu5TffLP+4czIDmzLxWiUubf2lGg0iqIoVzOZzPNT55aXWvWv7Uh0emGkBMuy6NoSNWiTy+XIZrMUCgWAK+l0+ohwWlUR0ELA1EgC11VA8e/OxTEVIQDUkRLGNd8hVj8/Q3SLCCGJTUYAkDJAKBTCaP4s1erO4Y4ptd+/6hnf/Z+Y/s6l88H/kXEgqyb6p7cb4ctjSbh53+HsNYtbD1WPgrEI8gUbvd4i/8n25AT0pm4YxsDBHSo6frQXnzzmJR90IIQY+MH9zU314tmY4yGQAI1Gg0qlMricPGQPkTiORTAU9H0XEiAej5NMJvcBJQns6320Gu5nPASK33def7mCJoqeYgCz82fXdU0L4MsP8/0/LGHD/XRylokAAAAASUVORK5CYII=";
+    myItem.hbmpItem = IconBitmapUtils::Base64ToHBITMAP(base64Icon);
 
     LPCSTR itemTypeDataStr = m_folderOperation ? "Encrypt Folder(s)" : "Encrypt File(s)";      
     USES_CONVERSION;
