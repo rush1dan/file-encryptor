@@ -213,7 +213,7 @@ HRESULT __stdcall DecryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
     if (!processCreated)
     {
         std::string message = GetLastErrorAsString();
-        MessageBoxA(NULL, message.c_str(), "Result", MB_ICONERROR | MB_OK);
+        MessageBoxA(NULL, message.c_str(), "Failed", MB_ICONERROR | MB_OK);
     }
 
     /* This block of code written according to MS docs causes issues for uknown reasons

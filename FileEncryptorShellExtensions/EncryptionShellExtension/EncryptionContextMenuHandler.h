@@ -5,6 +5,7 @@
 #include <string>
 
 extern UINT g_classObjCount;
+extern HINSTANCE g_hInstance;
 
 class EncryptionContextMenuHandler : public IShellExtInit, IContextMenu, IUnknown
 {

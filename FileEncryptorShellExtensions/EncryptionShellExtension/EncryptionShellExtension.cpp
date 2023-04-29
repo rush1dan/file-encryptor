@@ -3,6 +3,7 @@
 #include <string>
 #include <ShlObj.h>
 #include "EnShlExtClassFactory.h"
+#include "EncryptionContextMenuHandler.h"
 
 HINSTANCE g_hInstance;
 const std::wstring DLL_REG_NAME = L"SimpleFileEncryptor";
