@@ -172,3 +172,42 @@ HRESULT IconBitmapUtils::ConvertToPARGB32(HDC hdc, __inout Gdiplus::ARGB* pargb,
 	return S_OK;
 }
 
+
+HBITMAP IconBitmapUtils::Base64ToHBITMAP(std::string base64String)
+{
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	ULONG_PTR gdiplusToken;
+	// Initialize GDI+.
+	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+	Gdiplus::Bitmap* bitmap = nullptr;
+	HBITMAP hBitmap = nullptr;
+
+	// Decode the base64 string into a GDI+ bitmap
+	std::string imageData = base64_decode(base64String);
+	HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, imageData.size());
+	if (hGlobal) {
+		LPVOID pData = GlobalLock(hGlobal);
+		if (pData) {
+			memcpy(pData, imageData.data(), imageData.size());
+			GlobalUnlock(hGlobal);
+			IStream* pStream = nullptr;
+			if (CreateStreamOnHGlobal(hGlobal, FALSE, &pStream) == S_OK) {
+				bitmap = Gdiplus::Bitmap::FromStream(pStream);
+				pStream->Release();
+			}
+		}
+		GlobalFree(hGlobal);
+	}
+
+	// Create an HBITMAP handle from the GDI+ bitmap
+	if (bitmap) {
+		bitmap->GetHBITMAP(Gdiplus::Color::AlphaMask, &hBitmap);
+		delete bitmap;
+	}
+
+	Gdiplus::GdiplusShutdown(gdiplusToken);
+
+	return hBitmap;
+}
+
