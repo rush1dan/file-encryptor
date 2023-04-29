@@ -4,6 +4,7 @@
 #include <atlconv.h>
 #include <Shlwapi.h>
 #include "IconBitmapUtils.h"
+#include "customutils.h"
 
 DecryptionContextMenuHandler::~DecryptionContextMenuHandler()
 {
@@ -172,7 +173,8 @@ HRESULT __stdcall DecryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 
 HRESULT __stdcall DecryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINFO* pici)
 {
-    std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main.exe";
+    std::wstring executableName = L"main.exe";
+    std::wstring executablePath = GetModuleFileDirectory(g_hInstance) + L"\\" + executableName;
     std::wstring operationObject = m_folderOperation ? L"--folder" : L"--file";
     std::wstring operationMode = L"--decrypt";
     std::wstring argString = operationObject + L" " + operationMode;
@@ -210,7 +212,7 @@ HRESULT __stdcall DecryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
     BOOL processCreated = CreateProcess(executablePath.c_str(), arg, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
     if (!processCreated)
     {
-        std::string message = "Decryption Application Failed to Start Due to:\nError Code " + std::to_string(GetLastError());
+        std::string message = GetLastErrorAsString();
         MessageBoxA(NULL, message.c_str(), "Result", MB_ICONERROR | MB_OK);
     }
 
