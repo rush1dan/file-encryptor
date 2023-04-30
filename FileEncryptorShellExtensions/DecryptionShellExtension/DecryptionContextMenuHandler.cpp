@@ -173,8 +173,9 @@ HRESULT __stdcall DecryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 
 HRESULT __stdcall DecryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINFO* pici)
 {
-    std::wstring executableName = L"main.exe";
-    std::wstring executablePath = GetModuleFileDirectory(g_hInstance) + L"\\" + executableName;
+    /*std::wstring executableName = L"main.exe";
+    std::wstring executablePath = GetModuleFileDirectory(g_hInstance) + L"\\" + executableName;*/
+    std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main.exe";
     std::wstring operationObject = m_folderOperation ? L"--folder" : L"--file";
     std::wstring operationMode = L"--decrypt";
     std::wstring argString = operationObject + L" " + operationMode;
