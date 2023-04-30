@@ -175,7 +175,7 @@ HRESULT __stdcall EncryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
 {
     /*std::wstring executableName = L"main.exe";
     std::wstring executablePath = GetModuleFileDirectory(g_hInstance) + L"\\" + executableName;*/
-    std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main.exe";
+    std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main\\main.exe";
     std::wstring operationObject = m_folderOperation ? L"--folder" : L"--file";
     std::wstring operationMode = L"--encrypt";
     std::wstring argString = operationObject + L" " + operationMode;
