@@ -44,19 +44,19 @@ class Progress_Page(Page):
         frm_processlabel = tk.Frame(master=frm_process, relief=tk.FLAT, borderwidth=0)
         frm_processlabel.grid(row=0, column=0, sticky="e")
 
-        process_type = "Encrypt"
+        self.process_type = "Encrypt"
 
         match Data.operation_mode:
             case Data.OperationMode.ENCRYPTION:
-                process_type = "Encrypt"
+                self.process_type = "Encrypt"
             case Data.OperationMode.DECRYPTION:
-                process_type = "Decrypt"
+                self.process_type = "Decrypt"
             case _:
                 print("Operation mode argument not passed properly.")
         
         initial_file_count = self.processed_filecount+1
         self.process_label = tk.Label(master=frm_processlabel, 
-            text=f"{process_type}ing Files ({initial_file_count}/{self.total_files_for_processing})",
+            text=f"{self.process_type}ing Files ({initial_file_count}/{self.total_files_for_processing})",
             font=("Arial", 15))
         self.process_label.pack(side="right")
 
@@ -104,7 +104,8 @@ class Progress_Page(Page):
     def set_updated_progress(self, files_processed: int):
         self.processed_filecount = files_processed
         if self.processed_filecount < self.total_files_for_processing:
-            self.process_label.config(text="Encrypting files {files_encrypting}/{total_files}".format(files_encrypting=self.processed_filecount+1, 
+            self.process_label.config(text="{process}ing files {files_encrypting}/{total_files}".format(process=self.process_type,
+                files_encrypting=self.processed_filecount+1, 
                 total_files=self.total_files_for_processing))
             self.processingfile_label.config(text=self.files_in_progress[self.processed_filecount])
 
