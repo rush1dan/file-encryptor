@@ -1,6 +1,6 @@
 import tkinter as tk
 from data import Data
-from pages import Page_Manager
+from page_manager import Page_Manager
 from tkinter import messagebox
 import base64
 

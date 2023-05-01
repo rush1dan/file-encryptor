@@ -39,5 +39,6 @@ if __name__ == "__main__":
 # pyinstaller --onefile --paths C:\PythonProjects\FileEnDecryptor\.venv\Lib\site-packages main.py
 # and to have it without the console run command:
 # pyinstaller --onefile -w --paths C:\PythonProjects\FileEnDecryptor\.venv\Lib\site-packages main.py
+# to avoid slower start time of single exectuable file with --onefile, compile with --onedir instead
 
 # Right click context menu based encryption decryption working
