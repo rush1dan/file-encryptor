@@ -9,12 +9,13 @@
 EncryptionContextMenuHandler::~EncryptionContextMenuHandler()
 {
     InterlockedDecrement(&g_classObjCount);
+    m_szFilesOrFolders.clear();
+    m_szFilesOrFolders.shrink_to_fit();
 }
 
 EncryptionContextMenuHandler::EncryptionContextMenuHandler() : m_objRefCount(1)
 {
     m_pidlFolder = NULL;
-    m_folderOperation = FALSE;
     m_pDataObj = NULL;
     m_hRegKey = NULL;
     InterlockedIncrement(&g_classObjCount);
@@ -97,12 +98,12 @@ HRESULT __stdcall EncryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
         if (SUCCEEDED(m_pDataObj->GetData(&fe, &medium)))
         {
             // Get the count of files or folders dropped.
-            UINT fileorfolderCount = DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0);
+            UINT filesOrFoldersCount = DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0);
 
             // Get the file names from the CF_HDROP.
-            if (fileorfolderCount)
+            if (filesOrFoldersCount)
             {
-                for (int i = 0; i < fileorfolderCount; i++)
+                for (int i = 0; i < filesOrFoldersCount; i++)
                 {
                     wchar_t	sz_File_or_Folder[MAX_PATH];
                     DragQueryFile((HDROP)medium.hGlobal, i, sz_File_or_Folder,
@@ -111,25 +112,16 @@ HRESULT __stdcall EncryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
                     std::wstring doubleQuotationWrappedItemName = sz_File_or_Folder;    //For handling space(s) and hyphen(s)s in item name
                     doubleQuotationWrappedItemName = L"\"" + doubleQuotationWrappedItemName + L"\"";
 
-                    if (PathIsDirectory(sz_File_or_Folder))     //If selected object is a folder; add to list and skip over file addition
-                    {
-                        m_szFolders.push_back(doubleQuotationWrappedItemName);
-                        m_folderOperation = TRUE;
-                    }
+                    ////Don't show encryption context menu item for .enc files
+                    //std::wstring encExtension = L".enc";
+                    //if (encExtension.compare(PathFindExtension(sz_File_or_Folder)) == 0)
+                    //{
+                    //    ReleaseStgMedium(&medium);
+                    //    m_szFilesOrFolders.clear();
+                    //    return E_NOTIMPL;
+                    //}
 
-                    if (!m_folderOperation)
-                    {
-                        ////Don't show encryption context menu item for .enc files
-                        //std::wstring encExtension = L".enc";
-                        //if (encExtension.compare(PathFindExtension(sz_File_or_Folder)) == 0)
-                        //{
-                        //    ReleaseStgMedium(&medium);
-                        //    m_szFiles.clear();
-                        //    return E_NOTIMPL;
-                        //}
-
-                        m_szFiles.push_back(doubleQuotationWrappedItemName);
-                    }
+                    m_szFilesOrFolders.push_back(doubleQuotationWrappedItemName);
                 }
             }
 
@@ -158,7 +150,7 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
     std::string base64Icon = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAB2AAAAdgFOeyYIAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAeFJREFUOI2Nkz9oU1EUxn/v5iavCbwoJW3aqqSgDl0Uo2ihjg6CQ0fBJeAgxVXoEhwUUbrp5CAiBBcdXHRrcJQ0LkUNpCpKJMSm1ca8mLwk759DTEr6XiAHDtxzz/k+znfOvYqu6yYg8bFabY87t29st1tdreuoE1IxO83G7seNzW/LOzvNKoDwA/bB6dXrBNTETEBOhMOB5p4QQs4kFi9cXDy9FYtFZgEUXdfNcrksi8XiEMHrV4+R4Xnsdpm7D56gadqLVCq10v279W5ufmlhu5TffLP+4czIDmzLxWiUubf2lGg0iqIoVzOZzPNT55aXWvWv7Uh0emGkBMuy6NoSNWiTy+XIZrMUCgWAK+l0+ohwWlUR0ELA1EgC11VA8e/OxTEVIQDUkRLGNd8hVj8/Q3SLCCGJTUYAkDJAKBTCaP4s1erO4Y4ptd+/6hnf/Z+Y/s6l88H/kXEgqyb6p7cb4ctjSbh53+HsNYtbD1WPgrEI8gUbvd4i/8n25AT0pm4YxsDBHSo6frQXnzzmJR90IIQY+MH9zU314tmY4yGQAI1Gg0qlMricPGQPkTiORTAU9H0XEiAej5NMJvcBJQns6320Gu5nPASK33def7mCJoqeYgCz82fXdU0L4MsP8/0/LGHD/XRylokAAAAASUVORK5CYII=";
     myItem.hbmpItem = IconBitmapUtils::Base64ToHBITMAP(base64Icon);
 
-    LPCSTR itemTypeDataStr = m_folderOperation ? "Encrypt Folder(s)" : "Encrypt File(s)";      
+    LPCSTR itemTypeDataStr = "Encrypt";
     USES_CONVERSION;
     LPWSTR itemTypeData = A2W(itemTypeDataStr);
     myItem.dwTypeData = itemTypeData;
@@ -176,32 +168,18 @@ HRESULT __stdcall EncryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
     /*std::wstring executableName = L"main.exe";
     std::wstring executablePath = GetModuleFileDirectory(g_hInstance) + L"\\" + executableName;*/
     std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main\\main.exe";
-    std::wstring operationObject = m_folderOperation ? L"--folder" : L"--file";
     std::wstring operationMode = L"--encrypt";
-    std::wstring argString = operationObject + L" " + operationMode;
+    std::wstring argString = operationMode;
 
-    if (m_folderOperation)
+    int filesOrFoldersCount = m_szFilesOrFolders.size();
+
+    for (int i = 0; i < filesOrFoldersCount; i++)
     {
-        int folderCount = m_szFolders.size();
-
-        for (int i = 0; i < folderCount; i++)
-        {
-            //MessageBox(NULL, m_szFolders[i].c_str(), L"InvokeCommand()", MB_OK);
-            argString += L" " + m_szFolders[i];
-        }
-    }
-    else
-    {
-        int fileCount = m_szFiles.size();
-
-        for (int i = 0; i < fileCount; i++)
-        {
-            //MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
-            argString += L" " + m_szFiles[i];
-        }
+        //MessageBox(NULL, m_szFilesOrFolders[i].c_str(), L"InvokeCommand()", MB_OK);
+        argString += L" " + m_szFilesOrFolders[i];
     }
     
-    //MessageBoxA(NULL, argString.c_str(), "Result", MB_OK);
+    //MessageBox(NULL, argString.c_str(), L"Result", MB_OK);
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
