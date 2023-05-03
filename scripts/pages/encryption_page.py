@@ -141,8 +141,8 @@ class Encryption_Page(Page):
             def encrypt_folders_after_files(already_encrypted_file_count: int):
                 if already_encrypted_file_count < total_encryptable_file_count:
                     Encryptor.encrypt_folders(selected_folders, created_password, saving_directory,
-                                            lambda files_processed: show_updated_progress(files_processed + already_encrypted_file_count),
-                                            lambda file_count: show_completion(file_count + already_encrypted_file_count),
+                                            lambda files_processed: show_updated_progress(files_processed),
+                                            lambda folder_count: show_completion(folder_count),
                                             lambda error_title, error_msg: self.on_error(error_title, error_msg))
                 else:
                     show_completion(already_encrypted_file_count)
@@ -156,7 +156,7 @@ class Encryption_Page(Page):
             elif len(selected_folders) > 0:
                 new_thread = threading.Thread(target=Encryptor.encrypt_folders, args=(selected_folders, created_password, saving_directory, 
                     lambda files_processed: show_updated_progress(files_processed),
-                    lambda file_count: show_completion(file_count),
+                    lambda folder_count: show_completion(folder_count),
                     lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
                 new_thread.start()
 
