@@ -79,7 +79,7 @@ class Encryption_Page(Page):
         super().show()
 
     def on_pressed_enter(self):
-        self.unbind('<Return')
+        self.unbind('<Return>')
         self.encryption_process()
    
     def on_error(self, error_title: str, error_msg: str):
@@ -114,59 +114,58 @@ class Encryption_Page(Page):
         encryptable_files = []
         encryptable_file_count = 0
 
-        match Data.operation_object:
-            case Data.OperationObject.FILE:
-                selected_files = Data.selected_files_or_folders
-                encryptable_files = selected_files
-                encryptable_file_count = len(encryptable_files)
-                if encryptable_file_count == 0:
-                    self.show_info(info_title="", info_msg="Nothing to encrypt.", hide_mainwindow=True)
-                    return 
+        if len(Data.selected_files) > 0:
+            selected_files = Data.selected_files
+            encryptable_files.extend(selected_files)
+        
+        if len(Data.selected_folders) > 0:
+            selected_files_list_list = [utils.get_all_files_under_directory(folder) for folder in Data.selected_folders]
+            selected_files = []
+            for files_list in selected_files_list_list:
+                selected_files.extend(files_list)
+            encryptable_files.extend(selected_files)
+        
+        encryptable_file_count = len(encryptable_files)
 
-            case Data.OperationObject.FOLDER:
-                selected_files_list_list = [utils.get_all_files_under_directory(folder) for folder in Data.selected_files_or_folders]
-                selected_files = []
-                for files_list in selected_files_list_list:
-                    selected_files.extend(files_list)
-                encryptable_files = selected_files
-                encryptable_file_count = len(encryptable_files)
-                if encryptable_file_count == 0:
-                    self.show_info(info_title="", info_msg="Nothing to decrypt.", hide_mainwindow=True)
-                    return 
+        if encryptable_file_count == 0:
+            self.show_info(info_title="", info_msg="Nothing to encrypt.", hide_mainwindow=True)
+            return 
 
-            case _:
-                print("Operation object argument not passed properly. Decryption aborted.")
+        def encrypt_files_and_folders(selected_files: list[str], selected_folders: list[str], total_encryptable_files: list[str],
+                                      total_encryptable_file_count: int, saving_directory: str):
+            set_files_in_progress(total_encryptable_files)
+            show_progress(total_file_count=total_encryptable_file_count)
+
+            def encrypt_folders_after_files(already_encrypted_file_count: int):
+                if already_encrypted_file_count < total_encryptable_file_count:
+                    Encryptor.encrypt_folders(selected_folders, created_password, saving_directory,
+                                            lambda files_processed: show_updated_progress(files_processed + already_encrypted_file_count),
+                                            lambda file_count: show_completion(file_count + already_encrypted_file_count),
+                                            lambda error_title, error_msg: self.on_error(error_title, error_msg))
+                else:
+                    show_completion(already_encrypted_file_count)
+
+            if len(selected_files) > 0:
+                new_thread = threading.Thread(target=Encryptor.encrypt_files, args=(selected_files, created_password, saving_directory, True, 
+                    lambda files_processed: show_updated_progress(files_processed),
+                    lambda file_count: encrypt_folders_after_files(file_count),
+                    lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
+                new_thread.start()
+            elif len(selected_folders) > 0:
+                new_thread = threading.Thread(target=Encryptor.encrypt_folders, args=(selected_folders, created_password, saving_directory, 
+                    lambda files_processed: show_updated_progress(files_processed),
+                    lambda file_count: show_completion(file_count),
+                    lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
+                new_thread.start()
 
         try:
             from page_utils import save_filesorfolders_at, set_files_in_progress, show_progress, show_updated_progress, show_completion
 
-            suggested_directory = utils.get_parent_directory(Data.selected_files_or_folders[0])
+            suggested_directory = utils.get_parent_directory(Data.selected_files[0] if len(Data.selected_files) > 0 else Data.selected_folders[0])
             saving_directory = save_filesorfolders_at(suggested_directory)
 
             if saving_directory:
-                match Data.operation_object:
-                    case Data.OperationObject.FILE:
-                        set_files_in_progress(encryptable_files)
-                        show_progress(total_file_count=encryptable_file_count)
-
-                        new_thread = threading.Thread(target=Encryptor.encrypt_files, args=(encryptable_files, created_password, saving_directory, True, 
-                            lambda files_processed: show_updated_progress(files_processed),
-                            lambda file_count: show_completion(file_count),
-                            lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
-                        new_thread.start()
-
-                    case Data.OperationObject.FOLDER:
-                        set_files_in_progress(encryptable_files)
-                        show_progress(total_file_count=encryptable_file_count)
-
-                        new_thread = threading.Thread(target=Encryptor.encrypt_folders, args=(Data.selected_files_or_folders, created_password, saving_directory, 
-                            lambda files_processed: show_updated_progress(files_processed),
-                            lambda file_count: show_completion(file_count),
-                            lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
-                        new_thread.start()
-                        
-                    case _:
-                        print("Operation object argument not passed properly. Encryption aborted.")
+                encrypt_files_and_folders(Data.selected_files, Data.selected_folders, encryptable_files, encryptable_file_count, saving_directory)
 
         except FileNotFoundError:
             print("No File Argument")
