@@ -11,11 +11,9 @@ class DecryptionContextMenuHandler : public IShellExtInit, IContextMenu, IUnknow
 {
 private:
 	LPITEMIDLIST					m_pidlFolder;			//The folder's PIDL (In case of right clicking directory background i.e. empty space)
-	std::vector<std::wstring>		m_szFiles;				//The file paths
-	std::vector<std::wstring>		m_szFolders;			//The folder paths
+	std::vector<std::wstring>		m_szFilesOrFolders;		//The file or folder paths
 	IDataObject*					m_pDataObj;				//The IDataObject pointer
 	HKEY							m_hRegKey;				//The file or folder's registry key
-	BOOL							m_folderOperation;		//Folder operation overrides file operation
 
 protected:
 	DWORD m_objRefCount;

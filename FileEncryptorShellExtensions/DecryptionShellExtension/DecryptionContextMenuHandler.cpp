@@ -9,12 +9,13 @@
 DecryptionContextMenuHandler::~DecryptionContextMenuHandler()
 {
     InterlockedDecrement(&g_classObjCount);
+    m_szFilesOrFolders.clear();
+    m_szFilesOrFolders.shrink_to_fit();
 }
 
 DecryptionContextMenuHandler::DecryptionContextMenuHandler() : m_objRefCount(1)
 {
     m_pidlFolder = NULL;
-    m_folderOperation = FALSE;
     m_pDataObj = NULL;
     m_hRegKey = NULL;
     InterlockedIncrement(&g_classObjCount);
@@ -97,12 +98,12 @@ HRESULT __stdcall DecryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
         if (SUCCEEDED(m_pDataObj->GetData(&fe, &medium)))
         {
             // Get the count of files or folders dropped.
-            UINT fileorfolderCount = DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0);
+            UINT filesOrFoldersCount = DragQueryFile((HDROP)medium.hGlobal, (UINT)-1, NULL, 0);
 
             // Get the file names from the CF_HDROP.
-            if (fileorfolderCount)
+            if (filesOrFoldersCount)
             {
-                for (int i = 0; i < fileorfolderCount; i++)
+                for (int i = 0; i < filesOrFoldersCount; i++)
                 {
                     wchar_t	sz_File_or_Folder[MAX_PATH];
                     DragQueryFile((HDROP)medium.hGlobal, i, sz_File_or_Folder,
@@ -111,29 +112,28 @@ HRESULT __stdcall DecryptionContextMenuHandler::Initialize(PCIDLIST_ABSOLUTE pid
                     std::wstring doubleQuotationWrappedItemName = sz_File_or_Folder;    //For handling space(s) and hyphen(s)s in item name
                     doubleQuotationWrappedItemName = L"\"" + doubleQuotationWrappedItemName + L"\"";
 
-                    if (PathIsDirectory(sz_File_or_Folder))     //If selected object is a folder; add to list and skip over file addition
+                    if (PathIsDirectory(sz_File_or_Folder))     //If selected object is a folder
                     {
-                        m_szFolders.push_back(doubleQuotationWrappedItemName);
-                        m_folderOperation = TRUE;
+                        m_szFilesOrFolders.push_back(doubleQuotationWrappedItemName);
                     }
-
-                    if (!m_folderOperation)
+                    else
                     {
                         //Show Decryption context menu item for only for .enc files
                         std::wstring encExtension = L".enc";
-                        if (encExtension.compare(PathFindExtensionW(sz_File_or_Folder)) != 0)
+                        if (encExtension.compare(PathFindExtensionW(sz_File_or_Folder)) == 0)
                         {
-                            ReleaseStgMedium(&medium);
-                            m_szFiles.clear();
-                            return E_NOTIMPL;
+                            m_szFilesOrFolders.push_back(doubleQuotationWrappedItemName);
                         }
-
-                        m_szFiles.push_back(doubleQuotationWrappedItemName);
                     }
                 }
             }
 
             ReleaseStgMedium(&medium);
+
+            if (m_szFilesOrFolders.size() == 0)     //Don't create the context menu if no selected object qualifies for decryption
+            {
+                return E_NOTIMPL;
+            }
         }
     }
 
@@ -158,7 +158,7 @@ HRESULT __stdcall DecryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
     std::string base64Icon = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAB2AAAAdgFOeyYIAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAi1JREFUOI11k11Ik2EYhq/v80uXFR84yQ2tQRaKpuVsGDHsPzoQSuigllBEQodBBB1EYdGJdFQeCBqJFbLoZ4120kGK4U/bwqLJCEQwcVObOodsbrK9HQynw2/P2Xu/93NxP++PFIlEwoCKRiUSCd503fGkQr2xXTuEIZkkNhVkYsDDs+HfDAJIuQBLiyFcr1q4dnKYQl323qiPpae9PHj/lQ4FIBgMMj4+nmXyDbVz//IokpReR1cluhyyF5EUrc0cuW2jbSaER9aKPjc7zdnaX5lmAIfbTMu9ueXiutdnuh14rYcpOmXmriZgftrN0epYlhaNxpBl+bTVaq1e10ylVCpaAFmKb9FsJ/x87DnH8sKfrpsXqQJQ8ijQBKCUEIvD9oINqVAnuNroBcgkCK8Q0BwhmVgksaaJzlQsDl4f37YA/GNOmuscqDtzNydT8LCTgb4vtGWN4B9z0nTQTm15+gD7x4r5+09HU8MMelWQTMEPvxx9+SnltPdzC1jLAPw/s5sBhiYbqTRfoXvkO9ukJYyl+wjOx290fnhkX/dIkUgk3NfzWG3Y/ZxD+1cBWF6BJ/Zj7DlwHn1JOQAGgwGLxYIQokFVVfc6QHG9ay84XtZBxd50s39Kx2dPFabqS+j1xkwaIYTmeShioTe/ojYd2zep44WriLIaG/G4IBAIZIzS5me5GZAnbdzXyEQNF663axpVVfPDokzMGsXbwUJS5GOqaaW+vl7TmKv+A9TYzq27OuQqAAAAAElFTkSuQmCC";
     myItem.hbmpItem = IconBitmapUtils::Base64ToHBITMAP(base64Icon);
 
-    LPCSTR itemTypeDataStr = m_folderOperation ? "Decrypt Folder(s)" : "Decrypt File(s)";
+    LPCSTR itemTypeDataStr = "Decrypt";
     USES_CONVERSION;
     LPWSTR itemTypeData = A2W(itemTypeDataStr);
     myItem.dwTypeData = itemTypeData;
@@ -176,32 +176,18 @@ HRESULT __stdcall DecryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINF
     /*std::wstring executableName = L"main.exe";
     std::wstring executablePath = GetModuleFileDirectory(g_hInstance) + L"\\" + executableName;*/
     std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main\\main.exe";
-    std::wstring operationObject = m_folderOperation ? L"--folder" : L"--file";
     std::wstring operationMode = L"--decrypt";
-    std::wstring argString = operationObject + L" " + operationMode;
+    std::wstring argString = operationMode;
 
-    if (m_folderOperation)
+    int filesOrFoldersCount = m_szFilesOrFolders.size();
+
+    for (int i = 0; i < filesOrFoldersCount; i++)
     {
-        int folderCount = m_szFolders.size();
-
-        for (int i = 0; i < folderCount; i++)
-        {
-            //MessageBox(NULL, m_szFolders[i].c_str(), L"InvokeCommand()", MB_OK);
-            argString += L" " + m_szFolders[i];
-        }
-    }
-    else
-    {
-        int fileCount = m_szFiles.size();
-
-        for (int i = 0; i < fileCount; i++)
-        {
-            //MessageBox(NULL, m_szFiles[i].c_str(), L"InvokeCommand()", MB_OK);
-            argString += L" " + m_szFiles[i];
-        }
+        //MessageBox(NULL, m_szFilesOrFolders[i].c_str(), L"InvokeCommand()", MB_OK);
+        argString += L" " + m_szFilesOrFolders[i];
     }
 
-    //MessageBoxA(NULL, argString.c_str(), "Result", MB_OK);
+    //MessageBox(NULL, argString.c_str(), L"Result", MB_OK);
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
