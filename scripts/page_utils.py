@@ -49,3 +49,6 @@ def hide_main_window():
 
 def close_main_window():
     Page_Manager.close_main_window()
+
+def get_current_page():
+    return Page_Manager.current_page

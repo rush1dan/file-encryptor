@@ -73,14 +73,16 @@ class Encryption_Page(Page):
                                 command=self.encryption_process)
         btn_encrypt.pack(pady=(0, 10))
 
-        self.bind('<Return>', self.on_pressed_enter)
+        self.master.bind('<Return>', self.on_pressed_enter)
 
 
         super().show()
 
-    def on_pressed_enter(self):
-        self.unbind('<Return>')
-        self.encryption_process()
+    def on_pressed_enter(self, event):
+        from page_utils import get_current_page
+
+        if get_current_page() == self:
+            self.encryption_process()
    
     def on_error(self, error_title: str, error_msg: str):
         from page_utils import hide_main_window, close_main_window
