@@ -1,4 +1,5 @@
 from enum import IntEnum
+import os.path
 
 class Data:
     class OperationObject(IntEnum):
@@ -9,20 +10,12 @@ class Data:
         ENCRYPTION = 0,
         DECRYPTION = 1
 
-    operation_object = None
     operation_mode = None
-    selected_files_or_folders = None
+    selected_files = []
+    selected_folders = []
 
     @classmethod
-    def set_data(cls, operation_object_arg: str, operation_mode_arg: str, files_or_folders: list):
-        match operation_object_arg:
-            case "--file":
-                cls.operation_object = cls.OperationObject.FILE
-            case "--folder":
-                cls.operation_object = cls.OperationObject.FOLDER
-            case _:
-                print("Operation object argument not passed properly.")
-
+    def set_data(cls, operation_mode_arg: str, files_or_folders: list):
         match operation_mode_arg:
             case "--encrypt":
                 cls.operation_mode = cls.OperationMode.ENCRYPTION
@@ -31,4 +24,8 @@ class Data:
             case _:
                 print("Operation mode argument not passed properly.")
 
-        cls.selected_files_or_folders = files_or_folders
+        for path in files_or_folders:
+            if os.path.isdir(path):
+                cls.selected_folders.append(path)
+            else:
+                cls.selected_files.append(path)

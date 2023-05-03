@@ -11,17 +11,17 @@ def run_as_standalone_application():
     Window_Manager.show_info_window_only(title="File Encryptor", msg="Use application from right click context menu.")
     return None
 
-def process_cmd_args()->tuple[str, str, list]:
-    """Returns the Operation Object, Operation Mode and Selected Files or Folders"""
-    return sys.argv[0], sys.argv[1], sys.argv[2:]
+def process_cmd_args()->tuple[str, list]:
+    """Returns the Operation Mode and Selected Files or Folders"""
+    return sys.argv[0], sys.argv[1:]
 
 if __name__ == "__main__":
     try:
         try:
-            operation_object, operation_mode, selected_files_or_folders = process_cmd_args()
+            operation_mode, selected_files_or_folders = process_cmd_args()
 
             #Set operation and file data:
-            Data.set_data(operation_object_arg=operation_object, operation_mode_arg=operation_mode, files_or_folders=selected_files_or_folders)
+            Data.set_data(operation_mode_arg=operation_mode, files_or_folders=selected_files_or_folders)
 
             # Run the program:
             try:
@@ -31,6 +31,7 @@ if __name__ == "__main__":
         except:
             run_as_standalone_application()
     except Exception as ex:
+        Window_Manager.show_error_window_only(type(ex).__name__, str(ex))
         traceback.print_exc()
         input("Press Enter To Exit...")
 

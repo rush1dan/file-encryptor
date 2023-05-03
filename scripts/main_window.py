@@ -46,3 +46,11 @@ class Window_Manager:
     @classmethod
     def show_info_window_only(cls, title: str, msg: str):
         messagebox.showinfo(title=title, message=msg)
+
+    @classmethod
+    def show_warning_window_only(cls, title: str, msg: str):
+        messagebox.showwarning(title=title, message=msg)
+
+    @classmethod
+    def show_error_window_only(cls, title: str, msg: str):
+        messagebox.showerror(title=title, message=msg)
