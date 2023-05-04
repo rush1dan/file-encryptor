@@ -74,6 +74,7 @@ DWORD SizeOfWStringInBytes(std::wstring target)
 	return size;
 }
 
+//Terminal(Powershell/Cmd) command as adminstrator: regsvr32 DecryptionShellExtension.dll
 HRESULT __stdcall DllRegisterServer()
 {
 	HKEY hkey;
@@ -165,6 +166,7 @@ HRESULT __stdcall DllRegisterServer()
 	return S_OK;
 }
 
+//Terminal(Powershell/Cmd) command as adminstrator: regsvr32 /u DecryptionShellExtension.dll
 HRESULT __stdcall DllUnregisterServer()
 {
 	HKEY hkey;
