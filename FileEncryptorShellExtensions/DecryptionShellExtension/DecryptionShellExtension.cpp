@@ -80,6 +80,8 @@ HRESULT __stdcall DllRegisterServer()
 	HKEY hkey;
 	DWORD lpDisp;
 
+	//----------------Create keys for file operation----------------
+
 	//Create GUID key:
 	std::wstring lpSubKey = L"SOFTWARE\\Classes\\CLSID\\" + WStringFromCLSID(CLSID_DecryptionShlExt);
 	LONG result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &lpDisp);
@@ -113,29 +115,9 @@ HRESULT __stdcall DllRegisterServer()
 	RegCloseKey(hkey);
 
 
-	//Create .enc extension key:
-	lpSubKey = L"SOFTWARE\\Classes\\.enc";
+	//Create Handler Key for all file types(*):
+	lpSubKey = L"SOFTWARE\\Classes\\*\\shellex\\ContextMenuHandlers\\" + DLL_REG_NAME;
 	result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &lpDisp);
-	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-
-	//Set encfile as default value:
-	std::wstring encFileValue = L"encfile";
-	result = RegSetValueEx(hkey, NULL, 0, REG_SZ, (BYTE*)encFileValue.c_str(),
-		SizeOfWStringInBytes(encFileValue));
-	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-	RegCloseKey(hkey);
-
-	//Create shellex key:
-	lpSubKey = L"SOFTWARE\\Classes\\encfile\\shellex";
-	result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &lpDisp);
-	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-
-	//Create ContextMenuHandlers key:
-	result = RegCreateKeyEx(hkey, L"ContextMenuHandlers", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &lpDisp);
-	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-
-	//Create Handler GUID Key:
-	result = RegCreateKeyEx(hkey, DLL_REG_NAME.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &lpDisp);
 	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
 
 	//Set handler key (default) value:
@@ -171,6 +153,8 @@ HRESULT __stdcall DllUnregisterServer()
 {
 	HKEY hkey;
 
+	//----------------Delete keys for file operation----------------
+
 	//Check if InprocServer32 key exists and if it does delete it
 	std::wstring lpSubKey = L"SOFTWARE\\Classes\\CLSID\\" + WStringFromCLSID(CLSID_DecryptionShlExt) + L"\\InprocServer32";
 	LONG result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, KEY_ALL_ACCESS, &hkey);
@@ -201,48 +185,8 @@ HRESULT __stdcall DllUnregisterServer()
 	RegCloseKey(hkey);
 
 
-	//Delete .enc extension key:
-	lpSubKey = L"SOFTWARE\\Classes\\.enc";
-	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, KEY_ALL_ACCESS, &hkey);
-	if (result == ERROR_SUCCESS)
-	{
-		result = RegDeleteKey(HKEY_LOCAL_MACHINE, lpSubKey.c_str());
-		if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-	}
-	RegCloseKey(hkey);
-
-	//Delete handler GUID key:
-	lpSubKey = L"SOFTWARE\\Classes\\encfile\\shellex\\ContextMenuHandlers\\" + DLL_REG_NAME;
-	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, KEY_ALL_ACCESS, &hkey);
-	if (result == ERROR_SUCCESS)
-	{
-		result = RegDeleteKey(HKEY_LOCAL_MACHINE, lpSubKey.c_str());
-		if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-	}
-	RegCloseKey(hkey);
-
-	//Delete ContextMenuHandlers key:
-	lpSubKey = L"SOFTWARE\\Classes\\encfile\\shellex\\ContextMenuHandlers";
-	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, KEY_ALL_ACCESS, &hkey);
-	if (result == ERROR_SUCCESS)
-	{
-		result = RegDeleteKey(HKEY_LOCAL_MACHINE, lpSubKey.c_str());
-		if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-	}
-	RegCloseKey(hkey);
-
-	//Delete shellex key:
-	lpSubKey = L"SOFTWARE\\Classes\\encfile\\shellex";
-	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, KEY_ALL_ACCESS, &hkey);
-	if (result == ERROR_SUCCESS)
-	{
-		result = RegDeleteKey(HKEY_LOCAL_MACHINE, lpSubKey.c_str());
-		if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
-	}
-	RegCloseKey(hkey);
-
-	//Delete encfile key:
-	lpSubKey = L"SOFTWARE\\Classes\\encfile";
+	//Delete handler key:
+	lpSubKey = L"SOFTWARE\\Classes\\*\\shellex\\ContextMenuHandlers\\" + DLL_REG_NAME;
 	result = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, KEY_ALL_ACCESS, &hkey);
 	if (result == ERROR_SUCCESS)
 	{

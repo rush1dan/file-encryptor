@@ -115,7 +115,7 @@ HRESULT __stdcall DllRegisterServer()
 	RegCloseKey(hkey);
 
 
-	//Create Handler Key:
+	//Create Handler Key for all file types(*):
 	lpSubKey = L"SOFTWARE\\Classes\\*\\shellex\\ContextMenuHandlers\\" + DLL_REG_NAME;
 	result = RegCreateKeyEx(HKEY_LOCAL_MACHINE, lpSubKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hkey, &lpDisp);
 	if (result != ERROR_SUCCESS) { return E_UNEXPECTED; }
