@@ -6,6 +6,8 @@ import os
 
 class Decryptor:
     files_decrypted = 0
+    failed_files_list = []
+    failedfiles_fromfolders_list = []
 
     @classmethod
     def decrypt_msg(cls, encrypted_msg: str | bytes, password: str) -> bytes:
@@ -29,28 +31,34 @@ class Decryptor:
             return decrypted_content
 
     @classmethod
-    def decrypt_file(cls, filepath: str, password: str, save_directory: str):
-        if utils.get_file_extension(filepath) != ".enc":
-            print(f"{filepath} not decryptable.")
-            return
+    def decrypt_file(cls, filepath: str, password: str, save_directory: str)->bool:
+        try:
+            if utils.get_file_extension(filepath) != ".enc":
+                print(f"{filepath} not decryptable.")
+                return
 
-        decrypted_content = cls.decrypt_file_content(filepath, password, remove_extension=False)    #Embedded file extension needs to be extracted
-        
-        save_file_name = utils.get_file_name(filepath, with_extension=False)
+            decrypted_content = cls.decrypt_file_content(filepath, password, remove_extension=False)    #Embedded file extension needs to be extracted
+            
+            save_file_name = utils.get_file_name(filepath, with_extension=False)
 
-        og_file_extension = utils.get_original_file_extension(decrypted_content)
-        decrypted_content = utils.remove_file_extension(decrypted_content)      #Embedded file extension can be removed after extracting it
-        if not cls.name_has_og_extension(save_file_name, og_file_extension):      #If decrypted file already doesn't have the og extension, then add it
-            save_file_name += og_file_extension  
+            og_file_extension = utils.get_original_file_extension(decrypted_content)
+            decrypted_content = utils.remove_file_extension(decrypted_content)      #Embedded file extension can be removed after extracting it
+            if not cls.name_has_og_extension(save_file_name, og_file_extension):      #If decrypted file already doesn't have the og extension, then add it
+                save_file_name += og_file_extension  
 
-        save_file_path = save_directory + "\\" + save_file_name
-
-        while os.path.exists(save_file_path):
-            save_file_name = utils.add_nonduplicate_identifier(save_file_name)
             save_file_path = save_directory + "\\" + save_file_name
 
-        with open(save_file_path, "wb") as f:
-            f.write(decrypted_content)
+            while os.path.exists(save_file_path):
+                save_file_name = utils.add_nonduplicate_identifier(save_file_name)
+                save_file_path = save_directory + "\\" + save_file_name
+
+            with open(save_file_path, "wb") as f:
+                f.write(decrypted_content)
+        except InvalidToken:
+            print(f"Invalid token for {filepath}")
+            return False
+        
+        return True
 
     #Entry point method for decryption of files
     @classmethod
@@ -60,18 +68,20 @@ class Decryptor:
             total_files = len(filepaths)
 
             for filepath in filepaths:
-                cls.decrypt_file(filepath, password, save_directory)
-
+                if not cls.decrypt_file(filepath, password, save_directory):
+                    cls.failed_files_list.append(filepath)
+                
                 cls.files_decrypted += 1
                 if on_file_decrypted != None:
                     on_file_decrypted(cls.files_decrypted)
 
             if on_decryption_complete != None:
                 on_decryption_complete(total_files)
-        except InvalidToken:
-            if on_error != None:
-                on_error("Incorrect Password Error", "Incorrect password entered.\nDecryption failed.")
-            return
+
+            if len(cls.failed_files_list) > 0:
+                error_msg = "Incorrect passwords for files:\n" + "\n".join(cls.failed_files_list)
+                if on_error != None:
+                    on_error("Incorrect Password Error", error_msg)
         except FileNotFoundError:
             if on_error != None:
                 on_error("File Not Found Error", "File Not Found.")
@@ -95,7 +105,9 @@ class Decryptor:
             if obj.is_dir():
                 cls.decrypt_folder(obj.path, password, decrypted_folder_path, on_file_decrypted)
             elif obj.is_file():
-                cls.decrypt_file(obj.path, password, decrypted_folder_path)
+                if not cls.decrypt_file(obj.path, password, decrypted_folder_path):
+                    cls.failedfiles_fromfolders_list.append(obj.path)
+                    
                 cls.files_decrypted += 1
                 if on_file_decrypted != None:
                     on_file_decrypted(cls.files_decrypted)
@@ -112,10 +124,11 @@ class Decryptor:
 
             if on_decryption_complete != None:
                 on_decryption_complete(total_folders)
-        except InvalidToken:
-            if on_error != None:
-                on_error("Incorrect Password Error", "Incorrect password entered.\nDecryption failed.")
-            return
+
+            if len(cls.failedfiles_fromfolders_list) > 0:
+                error_msg = "Incorrect passwords for files:\n" + "\n".join(cls.failedfiles_fromfolders_list)
+                if on_error != None:
+                    on_error("Incorrect Password Error", error_msg)
         except FileNotFoundError:
             if on_error != None:
                 on_error("File Not Found Error", "File Not Found.")

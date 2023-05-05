@@ -84,12 +84,23 @@ class Encryption_Page(Page):
         if get_current_page() == self:
             self.encryption_process()
    
-    def on_error(self, error_title: str, error_msg: str):
+    def on_error(self, error_title: str, error_msg: str, hide_mainwindow: bool = True):
         from page_utils import hide_main_window, close_main_window
 
-        hide_main_window()
+        if hide_mainwindow:
+            hide_main_window()
         messagebox.showerror(title=error_title, message=error_msg)
-        close_main_window()
+        if hide_mainwindow:
+            close_main_window()
+
+    def show_info(self, info_title: str, info_msg: str, hide_mainwindow: bool = False):
+        from page_utils import hide_main_window, close_main_window
+
+        if hide_mainwindow:
+            hide_main_window()
+        messagebox.showinfo(title=info_title, message=info_msg)
+        if hide_mainwindow:
+            close_main_window()
 
     def primary_focus(self):
         return self.ent_createpassword.focus_set()

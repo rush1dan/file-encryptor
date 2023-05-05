@@ -58,14 +58,16 @@ class Decryption_Page(Page):
         if get_current_page() == self:
             self.decryption_process()
 
-    def on_error(self, error_title: str, error_msg: str):
+    def on_error(self, error_title: str, error_msg: str, hide_mainwindow: bool = True):
         from page_utils import hide_main_window, close_main_window
-
-        hide_main_window()
+        
+        if hide_mainwindow:
+            hide_main_window()
         messagebox.showerror(title=error_title, message=error_msg)
-        close_main_window()
+        if hide_mainwindow:
+            close_main_window()
 
-    def show_info(self, info_title: str, info_msg: str, hide_mainwindow: bool):
+    def show_info(self, info_title: str, info_msg: str, hide_mainwindow: bool = False):
         from page_utils import hide_main_window, close_main_window
 
         if hide_mainwindow:
@@ -120,7 +122,7 @@ class Decryption_Page(Page):
                     Decryptor.decrypt_folders(selected_folders, entered_password, saving_directory,
                                             lambda files_processed: show_updated_progress(files_processed),
                                             lambda folder_count: show_completion(folder_count),
-                                            lambda error_title, error_msg: self.on_error(error_title, error_msg))
+                                            lambda error_title, error_msg: self.on_error(error_title, error_msg, False))
                 else:
                     show_completion(already_decrypted_file_count)
 
@@ -128,13 +130,13 @@ class Decryption_Page(Page):
                 new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(selected_files, entered_password, saving_directory, 
                     lambda files_processed: show_updated_progress(files_processed),
                     lambda file_count: decrypt_folders_after_files(file_count),
-                    lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
+                    lambda error_title, error_msg: self.on_error(error_title, error_msg, False)), daemon=True)
                 new_thread.start()
             elif len(selected_folders) > 0:
                 new_thread = threading.Thread(target=Decryptor.decrypt_folders, args=(selected_folders, entered_password, saving_directory, 
                     lambda files_processed: show_updated_progress(files_processed),
                     lambda folder_count: show_completion(folder_count),
-                    lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
+                    lambda error_title, error_msg: self.on_error(error_title, error_msg, False)), daemon=True)
                 new_thread.start()
 
         try:
