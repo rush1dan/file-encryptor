@@ -173,3 +173,7 @@ class Encryption_Page(Page):
             print("No File Argument")
             self.on_error("File Not Found Error", "File Not Found.")
 
+        except Exception as ex:
+            self.on_error(type(ex).__name__, str(ex))
+            return
+

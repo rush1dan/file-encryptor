@@ -16,38 +16,33 @@ class Encryptor:
 
     @classmethod
     def encrypt_file_content(cls, filepath: str, password: str, add_extension=False) -> bytes:
-        try:
-            with open(filepath, 'rb') as f:
-                file_content = f.read()
+        with open(filepath, 'rb') as f:
+            file_content = f.read()
 
-                if add_extension:
-                    file_content += utils.get_file_extension(filepath).encode()
+            if add_extension:
+                file_content += utils.get_file_extension(filepath).encode()
 
-                encrypted_content = cls.encrypt_msg(file_content, password)
+            encrypted_content = cls.encrypt_msg(file_content, password)
 
-                return encrypted_content
-        except FileNotFoundError:
-            print("File Not Found")
+            return encrypted_content
 
     @classmethod
     def encrypt_file(cls, filepath: str, password: str, save_directory: str, add_extension=True):
-        try:
-            encrypted_content = cls.encrypt_file_content(filepath, password, add_extension)
+        encrypted_content = cls.encrypt_file_content(filepath, password, add_extension)
 
-            save_file_name = utils.get_file_name(filepath, with_extension=True)
-            encrypted_file_extension = ".enc"
-            save_file_name += encrypted_file_extension
+        save_file_name = utils.get_file_name(filepath, with_extension=True)
+        encrypted_file_extension = ".enc"
+        save_file_name += encrypted_file_extension
+        save_file_path = save_directory + "\\" + save_file_name
+
+        while os.path.exists(save_file_path):
+            save_file_name = utils.add_nonduplicate_identifier(save_file_name)
             save_file_path = save_directory + "\\" + save_file_name
 
-            while os.path.exists(save_file_path):
-                save_file_name = utils.add_nonduplicate_identifier(save_file_name)
-                save_file_path = save_directory + "\\" + save_file_name
+        with open(save_file_path, "wb") as f:
+            f.write(encrypted_content)
 
-            with open(save_file_path, "wb") as f:
-                f.write(encrypted_content)
-        except FileNotFoundError:
-            print("File Not Found")
-
+    #Entry point method for encryption of files
     @classmethod
     def encrypt_files(cls, filepaths: list, password: str, save_directory: str, add_extension=True, 
         on_file_encrypted=lambda x: None, on_encryption_complete=lambda x: None, on_error=lambda x, y: None):
@@ -71,23 +66,20 @@ class Encryptor:
     #Top level folders passed in cmd arguments; handle sub folders here separately
     @classmethod
     def encrypt_folder(cls, folderpath: str, password: str, savepath: str, on_file_encrypted=lambda x: None):
-        try:
-            foldername = utils.get_folder_name(folderpath)
-            encrypted_folder_path = savepath + "\\" + f"{foldername}.enc"
-            while os.path.exists(encrypted_folder_path):
-                encrypted_folder_path += "(1)"
-            os.mkdir(encrypted_folder_path)
-            scan_dir = os.scandir(folderpath)
-            for obj in scan_dir:
-                if obj.is_dir():
-                    cls.encrypt_folder(obj.path, password, encrypted_folder_path, on_file_encrypted)
-                elif obj.is_file():
-                    cls.encrypt_file(obj.path, password, encrypted_folder_path, True)
-                    cls.files_encrypted += 1
-                    if on_file_encrypted != None:
-                        on_file_encrypted(cls.files_encrypted)
-        except FileNotFoundError:
-            print(f"Folder {encrypted_folder_path} could not be created.")
+        foldername = utils.get_folder_name(folderpath)
+        encrypted_folder_path = savepath + "\\" + f"{foldername}.enc"
+        while os.path.exists(encrypted_folder_path):
+            encrypted_folder_path += "(1)"
+        os.mkdir(encrypted_folder_path)
+        scan_dir = os.scandir(folderpath)
+        for obj in scan_dir:
+            if obj.is_dir():
+                cls.encrypt_folder(obj.path, password, encrypted_folder_path, on_file_encrypted)
+            elif obj.is_file():
+                cls.encrypt_file(obj.path, password, encrypted_folder_path, True)
+                cls.files_encrypted += 1
+                if on_file_encrypted != None:
+                    on_file_encrypted(cls.files_encrypted)
 
     #Top level folders passed in cmd arguments; handle sub folders separately
     @classmethod
