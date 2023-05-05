@@ -79,7 +79,7 @@ class Decryptor:
                 on_decryption_complete(total_files)
 
             if len(cls.failed_files_list) > 0:
-                error_msg = "Incorrect passwords for files:\n" + "\n".join(cls.failed_files_list)
+                error_msg = "Incorrect password for file(s):\n" + "\n".join(cls.failed_files_list)
                 if on_error != None:
                     on_error("Incorrect Password Error", error_msg)
         except FileNotFoundError:
