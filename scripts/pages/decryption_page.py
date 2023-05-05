@@ -56,7 +56,7 @@ class Decryption_Page(Page):
         from page_utils import get_current_page
 
         if get_current_page() == self:
-            self.encryption_process()
+            self.decryption_process()
 
     def on_error(self, error_title: str, error_msg: str):
         from page_utils import hide_main_window, close_main_window
@@ -93,59 +93,59 @@ class Decryption_Page(Page):
         decryptable_files = []
         decryptable_file_count = 0
 
-        match Data.operation_object:
-            case Data.OperationObject.FILE:
-                selected_files = Data.selected_files_or_folders
-                decryptable_files = [file for file in selected_files if utils.get_file_extension(file) == ".enc"]
-                decryptable_file_count = len(decryptable_files)
-                if decryptable_file_count == 0:
-                    self.show_info(info_title="", info_msg="Nothing to decrypt.", hide_mainwindow=True)
-                    return 
+        if len(Data.selected_files) > 0:
+            selected_files = Data.selected_files
+            decryptable_files.extend([file for file in selected_files if utils.get_file_extension(file) == ".enc"])
 
-            case Data.OperationObject.FOLDER:
-                selected_files_list_list = [utils.get_all_files_under_directory(folder) for folder in Data.selected_files_or_folders]
-                selected_files = []
-                for files_list in selected_files_list_list:
-                    selected_files.extend(files_list)
-                decryptable_files = [file for file in selected_files if utils.get_file_extension(file) == ".enc"]
-                decryptable_file_count = len(decryptable_files)
-                if decryptable_file_count == 0:
-                    self.show_info(info_title="", info_msg="Nothing to decrypt.", hide_mainwindow=True)
-                    return 
+        if len(Data.selected_folders) > 0:
+            selected_files_list_list = [utils.get_all_files_under_directory(folder) for folder in Data.selected_folders]
+            selected_files = []
+            for files_list in selected_files_list_list:
+                selected_files.extend(files_list)
+            decryptable_files.extend([file for file in selected_files if utils.get_file_extension(file) == ".enc"])
+        
+        decryptable_file_count = len(decryptable_files)
 
-            case _:
-                print("Operation object argument not passed properly. Decryption aborted.")
+        if decryptable_file_count == 0:
+            self.show_info(info_title="", info_msg="Nothing to decrypt.", hide_mainwindow=True)
+            return
+
+        def decrypt_files_and_folders(selected_files: list[str], selected_folders: list[str], total_decryptable_files: list[str],
+                                      total_decryptable_file_count: int, saving_directory: str):
+            set_files_in_progress(total_decryptable_files)
+            show_progress(total_file_count=total_decryptable_file_count)
+
+            def decrypt_folders_after_files(already_decrypted_file_count: int):
+                if already_decrypted_file_count < total_decryptable_file_count:
+                    Decryptor.decrypt_folders(selected_folders, entered_password, saving_directory,
+                                            lambda files_processed: show_updated_progress(files_processed),
+                                            lambda folder_count: show_completion(folder_count),
+                                            lambda error_title, error_msg: self.on_error(error_title, error_msg))
+                else:
+                    show_completion(already_decrypted_file_count)
+
+            if len(selected_files) > 0:
+                new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(selected_files, entered_password, saving_directory, 
+                    lambda files_processed: show_updated_progress(files_processed),
+                    lambda file_count: decrypt_folders_after_files(file_count),
+                    lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
+                new_thread.start()
+            elif len(selected_folders) > 0:
+                new_thread = threading.Thread(target=Decryptor.decrypt_folders, args=(selected_folders, entered_password, saving_directory, 
+                    lambda files_processed: show_updated_progress(files_processed),
+                    lambda folder_count: show_completion(folder_count),
+                    lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
+                new_thread.start()
 
         try:
             from page_utils import save_filesorfolders_at, set_files_in_progress, show_progress, show_updated_progress, show_completion
 
-            suggested_directory = utils.get_parent_directory(Data.selected_files_or_folders[0])
+            suggested_directory = utils.get_parent_directory(Data.selected_files[0] if len(Data.selected_files) > 0 else Data.selected_folders[0])
             saving_directory = save_filesorfolders_at(suggested_directory)
 
             if saving_directory:
-                match Data.operation_object:              
-                    case Data.OperationObject.FILE:
-                        set_files_in_progress(decryptable_files)
-                        show_progress(total_file_count=decryptable_file_count)
-
-                        new_thread = threading.Thread(target=Decryptor.decrypt_files, args=(decryptable_files, entered_password, saving_directory, 
-                            lambda files_processed: show_updated_progress(files_processed),
-                            lambda file_count: show_completion(file_count),
-                            lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
-                        new_thread.start()
-
-                    case Data.OperationObject.FOLDER:
-                        set_files_in_progress(decryptable_files)
-                        show_progress(total_file_count=decryptable_file_count)
-
-                        new_thread = threading.Thread(target=Decryptor.decrypt_folders, args=(Data.selected_files_or_folders, entered_password, saving_directory, 
-                            lambda files_processed: show_updated_progress(files_processed),
-                            lambda file_count: show_completion(file_count),
-                            lambda error_title, error_msg: self.on_error(error_title, error_msg)), daemon=True)
-                        new_thread.start()
-
-                    case _:
-                        print("Operation object argument not passed properly. Decryption aborted.")
+                decrypt_files_and_folders(Data.selected_files, Data.selected_folders, decryptable_files, decryptable_file_count, saving_directory)
 
         except FileNotFoundError:
             print("No File Argument")
+            self.on_error("File Not Found Error", "File Not Found.")
