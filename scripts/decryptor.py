@@ -35,7 +35,7 @@ class Decryptor:
         try:
             if utils.get_file_extension(filepath) != ".enc":
                 print(f"{filepath} not decryptable.")
-                return
+                return True
 
             decrypted_content = cls.decrypt_file_content(filepath, password, remove_extension=False)    #Embedded file extension needs to be extracted
             
