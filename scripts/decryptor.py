@@ -31,7 +31,7 @@ class Decryptor:
             return decrypted_content
 
     @classmethod
-    def decrypt_file(cls, filepath: str, password: str, save_directory: str)->bool:
+    def decrypt_file(cls, filepath: str, password: str, save_directory: str, on_file_decrypted = lambda x: None)->bool:
         try:
             if utils.get_file_extension(filepath) != ".enc":
                 print(f"{filepath} not decryptable.")
@@ -56,8 +56,15 @@ class Decryptor:
                 f.write(decrypted_content)
         except InvalidToken:
             print(f"Invalid token for {filepath}")
+            cls.files_decrypted += 1
+            if on_file_decrypted != None:
+                on_file_decrypted(cls.files_decrypted)
             return False
         
+        cls.files_decrypted += 1
+        if on_file_decrypted != None:
+            on_file_decrypted(cls.files_decrypted)
+
         return True
 
     #Entry point method for decryption of files
@@ -68,12 +75,8 @@ class Decryptor:
             total_files = len(filepaths)
 
             for filepath in filepaths:
-                if not cls.decrypt_file(filepath, password, save_directory):
+                if not cls.decrypt_file(filepath, password, save_directory, on_file_decrypted):
                     cls.failed_files_list.append(filepath)
-                
-                cls.files_decrypted += 1
-                if on_file_decrypted != None:
-                    on_file_decrypted(cls.files_decrypted)
 
             if on_decryption_complete != None:
                 on_decryption_complete(total_files)
@@ -105,12 +108,8 @@ class Decryptor:
             if obj.is_dir():
                 cls.decrypt_folder(obj.path, password, decrypted_folder_path, on_file_decrypted)
             elif obj.is_file():
-                if not cls.decrypt_file(obj.path, password, decrypted_folder_path):
+                if not cls.decrypt_file(obj.path, password, decrypted_folder_path, on_file_decrypted):
                     cls.failedfiles_fromfolders_list.append(obj.path)
-                    
-                cls.files_decrypted += 1
-                if on_file_decrypted != None:
-                    on_file_decrypted(cls.files_decrypted)
 
     #Top level folders passed in cmd arguments; handle sub folders separately
     @classmethod
