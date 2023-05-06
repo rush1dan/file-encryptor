@@ -1,5 +1,5 @@
 import sys
-import traceback
+from traceback import print_exc as print_error
 from data import Data
 from main_window import Window_Manager
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
             run_as_standalone_application()
     except Exception as ex:
         Window_Manager.show_error_window_only(type(ex).__name__, str(ex))
-        traceback.print_exc()
+        print_error()
         input("Press Enter To Exit...")
 
 

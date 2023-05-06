@@ -2,6 +2,8 @@ from cryptography.fernet import Fernet, InvalidToken
 from keygen import get_key
 import utils
 import os
+from traceback import print_exc as print_error
+from time import sleep
 
 
 class Decryptor:
@@ -31,12 +33,12 @@ class Decryptor:
             return decrypted_content
 
     @classmethod
-    def decrypt_file(cls, filepath: str, password: str, save_directory: str, on_file_decrypted = lambda x: None)->bool:
-        try:
-            if utils.get_file_extension(filepath) != ".enc":
-                print(f"{filepath} not decryptable.")
-                return True
+    def decrypt_file(cls, filepath: str, password: str, save_directory: str, on_file_decrypting=lambda index, file: None,
+                     on_file_decrypted=lambda decrypted_count: None, on_error=lambda title, msg: None)->bool:
+        if on_file_decrypting != None:
+            on_file_decrypting(cls.files_decrypted, filepath)
 
+        try:
             decrypted_content = cls.decrypt_file_content(filepath, password, remove_extension=False)    #Embedded file extension needs to be extracted
             
             save_file_name = utils.get_file_name(filepath, with_extension=False)
@@ -56,10 +58,15 @@ class Decryptor:
                 f.write(decrypted_content)
         except InvalidToken:
             print(f"Invalid token for {filepath}")
+            sleep(0.25)
             cls.files_decrypted += 1
             if on_file_decrypted != None:
                 on_file_decrypted(cls.files_decrypted)
             return False
+        except FileNotFoundError:
+            if on_error != None:
+                on_error("FileNotFoundError", f"No such file or directory: {filepath}")
+            return True
         
         cls.files_decrypted += 1
         if on_file_decrypted != None:
@@ -69,13 +76,13 @@ class Decryptor:
 
     #Entry point method for decryption of files
     @classmethod
-    def decrypt_files(cls, filepaths: list, password: str, save_directory: str, 
-        on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None, on_error=lambda x, y: None):
+    def decrypt_files(cls, filepaths: list, password: str, save_directory: str, on_file_decrypting=lambda index, file: None,
+        on_file_decrypted=lambda decrypted_count: None, on_decryption_complete=lambda decrypted_count: None, on_error=lambda title, msg: None):
         try:
             total_files = len(filepaths)
 
             for filepath in filepaths:
-                if not cls.decrypt_file(filepath, password, save_directory, on_file_decrypted):
+                if not cls.decrypt_file(filepath, password, save_directory, on_file_decrypting, on_file_decrypted, on_error):
                     cls.failed_files_list.append(filepath)
 
             if on_decryption_complete != None:
@@ -85,41 +92,45 @@ class Decryptor:
                 error_msg = "Incorrect password for file(s):\n" + "\n".join(cls.failed_files_list)
                 if on_error != None:
                     on_error("Incorrect Password Error", error_msg)
-        except FileNotFoundError:
-            if on_error != None:
-                on_error("File Not Found Error", "File Not Found.")
-            return
         except Exception as ex:
+            print_error()
             if on_error != None:
                 on_error(type(ex).__name__, str(ex))
             return
 
     #Top level folders passed in cmd arguments; handle sub folders here separately
     @classmethod
-    def decrypt_folder(cls, folderpath: str, password: str, savepath: str, on_file_decrypted=lambda x: None):
-        foldername = utils.get_folder_name(folderpath)
-        foldername = foldername.replace(".enc", "")
-        decrypted_folder_path = savepath + "\\" + foldername
-        while os.path.exists(decrypted_folder_path):
-            decrypted_folder_path += "(1)"
-        os.mkdir(decrypted_folder_path)
-        scan_dir = os.scandir(folderpath)
-        for obj in scan_dir:
-            if obj.is_dir():
-                cls.decrypt_folder(obj.path, password, decrypted_folder_path, on_file_decrypted)
-            elif obj.is_file():
-                if not cls.decrypt_file(obj.path, password, decrypted_folder_path, on_file_decrypted):
-                    cls.failedfiles_fromfolders_list.append(obj.path)
+    def decrypt_folder(cls, folderpath: str, password: str, savepath: str, on_file_decrypting=lambda index, file: None, 
+                       on_file_decrypted=lambda decrypted_count: None, on_error=lambda title, msg: None):
+        try:
+            foldername = utils.get_folder_name(folderpath)
+            foldername = foldername.replace(".enc", "")
+            decrypted_folder_path = savepath + "\\" + foldername
+            while os.path.exists(decrypted_folder_path):
+                decrypted_folder_path += "(1)"
+            os.mkdir(decrypted_folder_path)
+            scan_dir = os.scandir(folderpath)
+            for obj in scan_dir:
+                if obj.is_dir():
+                    cls.decrypt_folder(obj.path, password, decrypted_folder_path, on_file_decrypting, on_file_decrypted, on_error)
+                elif obj.is_file():
+                    if not cls.decrypt_file(obj.path, password, decrypted_folder_path, on_file_decrypting, on_file_decrypted, on_error):
+                        cls.failedfiles_fromfolders_list.append(obj.path)
+        except FileNotFoundError:
+            if on_error != None:
+                on_error("FileNotFoundError", f"No such file or directory: {folderpath}")
+            return False
 
     #Top level folders passed in cmd arguments; handle sub folders separately
     @classmethod
-    def decrypt_folders(cls, folderpaths: list, password: str, save_directory: str, 
-        on_file_decrypted=lambda x: None, on_decryption_complete=lambda x: None, on_error=lambda x, y: None):
+    def decrypt_folders(cls, folderpaths: list, password: str, save_directory: str, on_file_decrypting=lambda index, file: None, 
+                        on_file_decrypted=lambda decrypted_count: None, on_decryption_complete=lambda decrypted_count: None, 
+                        on_error=lambda title, msg: None):
         try:
             total_folders = len(folderpaths)
 
             for folderpath in folderpaths:
-                cls.decrypt_folder(folderpath, password, save_directory, on_file_decrypted)
+                cls.decrypt_folder(folderpath, password, save_directory, on_file_decrypting, on_file_decrypted, on_error)
 
             if on_decryption_complete != None:
                 on_decryption_complete(total_folders)
@@ -128,11 +139,8 @@ class Decryptor:
                 error_msg = "Incorrect passwords for files:\n" + "\n".join(cls.failedfiles_fromfolders_list)
                 if on_error != None:
                     on_error("Incorrect Password Error", error_msg)
-        except FileNotFoundError:
-            if on_error != None:
-                on_error("File Not Found Error", "File Not Found.")
-            return
         except Exception as ex:
+            print_error()
             if on_error != None:
                 on_error(type(ex).__name__, str(ex))
             return

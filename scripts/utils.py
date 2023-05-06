@@ -69,6 +69,12 @@ def get_all_files_under_directory(directory: str)->list:
         all_files_list.extend([dir + "\\" + filename for filename in filename_list])
     return all_files_list
 
+def get_all_files_under_directory_with_extension(directory: str, file_extension: str)->list:
+    all_files_list = []
+    for dir, sub_dirname_list, filename_list in os.walk(directory):
+        all_files_list.extend([dir + "\\" + filename for filename in filename_list if get_file_extension(filename) == file_extension])
+    return all_files_list
+
 def get_all_filenames_under_directory(directory: str)->list:
     all_files_list = []
     for dir, sub_dirname_list, filename_list in os.walk(directory):

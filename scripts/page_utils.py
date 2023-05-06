@@ -8,9 +8,9 @@ def show_progress(total_file_count: int):
     
     Page_Manager.show_page("Progress")
 
-def show_updated_progress(files_processed: int):
+def show_updated_progress(file_index: int, file_in_process: str):
     progress_page = Page_Manager.page_collection["Progress"]
-    progress_page.set_updated_progress(files_processed)
+    progress_page.set_updated_progress(file_index, file_in_process)
 
 def set_files_in_progress(filepaths: list[str]):
     progress_page = Page_Manager.page_collection["Progress"]

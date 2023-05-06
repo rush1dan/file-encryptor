@@ -67,7 +67,7 @@ class Progress_Page(Page):
         self.dotprogress_label.pack(side="left")
 
         initial_file_index = 0
-        self.processingfile_label = tk.Label(master=frm_file, text=self.files_in_progress[initial_file_index], font=("Arial", 8),
+        self.processingfile_label = tk.Label(master=frm_file, text="", font=("Arial", 8),
             wraplength=windowWidth - 10, justify="center")
         self.processingfile_label.pack()
 
@@ -101,13 +101,13 @@ class Progress_Page(Page):
     def set_total_files_for_processing(self, file_count: int):
         self.total_files_for_processing = file_count
 
-    def set_updated_progress(self, files_processed: int):
+    def set_updated_progress(self, files_processed: int, file_in_process: str):
         self.processed_filecount = files_processed
         if self.processed_filecount < self.total_files_for_processing:
             self.process_label.config(text="{process}ing files {files_encrypting}/{total_files}".format(process=self.process_type,
                 files_encrypting=self.processed_filecount + 1, 
                 total_files=self.total_files_for_processing))
-            self.processingfile_label.config(text=self.files_in_progress[self.processed_filecount])
+            self.processingfile_label.config(text=file_in_process)
 
     def set_progress_finished(self):
         self.progress_finished = True
