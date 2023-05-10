@@ -55,13 +55,13 @@ class Complete_Page(Page):
         frm_completion_text = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
         frm_completion_text.grid(row=0, column=1, sticky="w")
 
-        lbl_completion_text = tk.Label(master=frm_completion_text, text=f"{process_type}ion Complete", font=("Arial", 13, "bold"))
+        lbl_completion_text = tk.Label(master=frm_completion_text, text=f"{process_type}ion Complete", font=("Arial", int(13 * Data.SCREEN_RES_FACTOR), "bold"))
         lbl_completion_text.pack(side="left")
 
 
         super().show()
 
-    def center_window(self, width=300, height=200):
+    def center_window(self, width, height):
         # get screen width and height
         screen_width = self.master.winfo_screenwidth()
         screen_height = self.master.winfo_screenheight()
