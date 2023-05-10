@@ -57,18 +57,18 @@ class Progress_Page(Page):
         initial_file_count = self.processed_filecount+1
         self.process_label = tk.Label(master=frm_processlabel, 
             text=f"{self.process_type}ing Files ({initial_file_count}/{self.total_files_for_processing})",
-            font=("Arial", 15))
+            font=("Arial", int(15 * Data.SCREEN_RES_FACTOR)))
         self.process_label.pack(side="right")
 
         frm_dotprogresslabel = tk.Frame(master=frm_process, relief=tk.FLAT, borderwidth=0)
         frm_dotprogresslabel.grid(row=0, column=1, sticky="w")
 
-        self.dotprogress_label = tk.Label(master=frm_dotprogresslabel, text="", font=("Arial", 15, "bold"))
+        self.dotprogress_label = tk.Label(master=frm_dotprogresslabel, text="", font=("Arial", int(15 * Data.SCREEN_RES_FACTOR), "bold"))
         self.dotprogress_label.pack(side="left")
 
         initial_file_index = 0
-        self.processingfile_label = tk.Label(master=frm_file, text="", font=("Arial", 8),
-            wraplength=windowWidth - 10, justify="center")
+        self.processingfile_label = tk.Label(master=frm_file, text="", font=("Arial", int(8 * Data.SCREEN_RES_FACTOR)),
+            wraplength=windowWidth - int(10 * Data.SCREEN_RES_FACTOR), justify="center")
         self.processingfile_label.pack()
 
         self.animate_label(self.dotprogress_label, "")
@@ -76,7 +76,7 @@ class Progress_Page(Page):
 
         super().show()
 
-    def center_window(self, width=300, height=200):
+    def center_window(self, width, height):
         # get screen width and height
         screen_width = self.master.winfo_screenwidth()
         screen_height = self.master.winfo_screenheight()
