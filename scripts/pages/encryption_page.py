@@ -20,10 +20,10 @@ class Encryption_Page(Page):
         # btn_back.pack()
 
         frm_processtitle = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
-        frm_processtitle.place(relx=0.5, rely=0.03, anchor="n")
+        frm_processtitle.place(relx=0.5, rely=0.05, anchor="n")
 
         lbl_processtitle = tk.Label(
-            master=frm_processtitle, text="Encrypt File(s)", font=("Arial", 15, 'bold'))
+            master=frm_processtitle, text="Encrypt File(s)", font=("Arial", int(15 * Data.SCREEN_RES_FACTOR), 'bold'))
         lbl_processtitle.pack()
 
         rows = 3
@@ -41,13 +41,14 @@ class Encryption_Page(Page):
         frm_createpassword.columnconfigure([0, 1], minsize=int(column_width/2))
 
         lbl_createpassword = tk.Label(
-            master=frm_createpassword, text="Create Password:", fg="grey", font=("Arial", 12, 'bold'))
-        lbl_createpassword.grid(row=0, column=0, sticky="w", padx=2)
+            master=frm_createpassword, text="Create Password:", fg="grey", font=("Arial", int(12 * Data.SCREEN_RES_FACTOR), 'bold'),
+            anchor="e", justify="right")
+        lbl_createpassword.grid(row=0, column=0, sticky="e", padx=int(2 * Data.SCREEN_RES_FACTOR))
 
         self.ent_createpassword = tk.Entry(
-            master=frm_createpassword, width=15, font=("Arial", 12), show="*", borderwidth=2)
+            master=frm_createpassword, width=15, font=("Arial", int(12 * Data.SCREEN_RES_FACTOR)), show="*", borderwidth=int(2 * Data.SCREEN_RES_FACTOR))
         self.ent_createpassword.grid(
-            row=0, column=1, sticky="e", padx=(10, 10))
+            row=0, column=1, sticky="w", padx=(int(10 * Data.SCREEN_RES_FACTOR), int(10 * Data.SCREEN_RES_FACTOR)))
 
         frm_confirmpassword = tk.Frame(
             master=self, relief=tk.FLAT, borderwidth=0)
@@ -57,21 +58,23 @@ class Encryption_Page(Page):
             [0, 1], minsize=int(column_width/2))
 
         lbl_confirmpassword = tk.Label(
-            master=frm_confirmpassword, text="Confirm Password:", fg="grey", font=("Arial", 12, 'bold'))
-        lbl_confirmpassword.grid(row=0, column=0, sticky="w", padx=2)
+            master=frm_confirmpassword, text="Confirm Password:", fg="grey", font=("Arial", int(12 * Data.SCREEN_RES_FACTOR), 'bold'),
+            anchor="e", justify="right")
+        lbl_confirmpassword.grid(row=0, column=0, sticky="e", padx=int(2 * Data.SCREEN_RES_FACTOR))
 
         self.ent_confirmpassword = tk.Entry(
-            master=frm_confirmpassword, width=15, font=("Arial", 12), show="*", borderwidth=2)
+            master=frm_confirmpassword, width=15, font=("Arial", int(12 * Data.SCREEN_RES_FACTOR)), show="*", 
+            borderwidth=int(2 * Data.SCREEN_RES_FACTOR))
         self.ent_confirmpassword.grid(
-            row=0, column=1, sticky="e", padx=(10, 10))
+            row=0, column=1, sticky="w", padx=(int(10 * Data.SCREEN_RES_FACTOR), int(10 * Data.SCREEN_RES_FACTOR)))
 
         frm_btn_encrypt = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
         frm_btn_encrypt.grid(row=3, column=0)
 
         btn_encrypt = tk.Button(master=frm_btn_encrypt,
-                                relief=tk.RAISED, border=6, borderwidth=6, text="Encrypt", font=("Arial", 12, "bold"),
+                                relief=tk.RAISED, border=int(6 * Data.SCREEN_RES_FACTOR), borderwidth=int(6 * Data.SCREEN_RES_FACTOR), text="Encrypt", font=("Arial", int(12 * Data.SCREEN_RES_FACTOR), "bold"),
                                 command=self.encryption_process)
-        btn_encrypt.pack(pady=(0, 10))
+        btn_encrypt.pack(pady=(0, int(10 * Data.SCREEN_RES_FACTOR)))
 
         self.master.bind('<Return>', self.on_pressed_enter)
 
