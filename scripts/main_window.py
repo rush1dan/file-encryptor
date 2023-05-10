@@ -13,9 +13,10 @@ class Window_Manager:
         screenWidth = window.winfo_screenwidth()
         screenHeight = window.winfo_screenheight()
         screenAspectRatio = screenWidth / screenHeight
+        Data.SCREEN_RES_FACTOR = screenWidth / 1920
 
         windowAspectRatio = 1.5
-        windowWidth = int(screenWidth / 6)
+        windowWidth = int(screenWidth / 5.5)
         windowHeight = int(windowWidth / windowAspectRatio)
 
         window.title("Simple File Encryptor")
@@ -32,7 +33,7 @@ class Window_Manager:
         window.mainloop()
 
     @classmethod
-    def center_window(cls, window, width=300, height=200):
+    def center_window(cls, window, width, height):
         # get screen width and height
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()

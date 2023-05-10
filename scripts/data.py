@@ -2,6 +2,8 @@ from enum import IntEnum
 import os.path
 
 class Data:
+    SCREEN_RES_FACTOR = 1.0
+
     class OperationObject(IntEnum):
         FILE = 0,
         FOLDER = 1
