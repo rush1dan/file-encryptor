@@ -24,7 +24,7 @@ class Decryption_Page(Page):
         frm_processtitle.place(relx=0.5, rely=0.1, anchor="n")
 
         lbl_processtitle = tk.Label(
-            master=frm_processtitle, text="Decrypt File(s)", font=("Arial", 15, 'bold'))
+            master=frm_processtitle, text="Decrypt File(s)", font=("Arial", int(15 * Data.SCREEN_RES_FACTOR), 'bold'))
         lbl_processtitle.pack()
 
         frm_enterpassword = tk.Frame(
@@ -32,19 +32,19 @@ class Decryption_Page(Page):
         frm_enterpassword.place(relx=0.5, rely=0.45, anchor=tk.CENTER)
 
         lbl_enterpassword = tk.Label(
-            master=frm_enterpassword, text="Enter Password:", font=("Arial", 12, 'bold'), fg="grey")
-        lbl_enterpassword.pack(side=tk.LEFT, padx=(0, 10))
+            master=frm_enterpassword, text="Enter Password:", font=("Arial", int(12 * Data.SCREEN_RES_FACTOR), 'bold'), fg="grey")
+        lbl_enterpassword.pack(side=tk.LEFT, padx=(0, int(10 * Data.SCREEN_RES_FACTOR)))
 
         self.ent_enterpassword = tk.Entry(master=frm_enterpassword, width=15, font=(
-            "Arial", 12), show="*", borderwidth=2)
+            "Arial", int(12 * Data.SCREEN_RES_FACTOR)), show="*", borderwidth=int(2 * Data.SCREEN_RES_FACTOR))
         self.ent_enterpassword.focus_set()
-        self.ent_enterpassword.pack(side=tk.RIGHT, padx=(10, 0))
+        self.ent_enterpassword.pack(side=tk.RIGHT, padx=(int(10 * Data.SCREEN_RES_FACTOR), 0))
 
         frm_btn_decrypt = tk.Frame(master=self, relief=tk.FLAT, borderwidth=0)
         frm_btn_decrypt.place(relx=0.5, rely=0.8, anchor=tk.CENTER)
 
         btn_decrypt = tk.Button(master=frm_btn_decrypt,
-                                relief=tk.RAISED, border=6, borderwidth=6, text="Decrypt", font=("Arial", 12, "bold"),
+                                relief=tk.RAISED, border=int(6 * Data.SCREEN_RES_FACTOR), borderwidth=int(6 * Data.SCREEN_RES_FACTOR), text="Decrypt", font=("Arial", int(12 * Data.SCREEN_RES_FACTOR), "bold"),
                                 command=self.decryption_process)
         btn_decrypt.pack(pady=(0, 0))
 
