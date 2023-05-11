@@ -6,5 +6,4 @@
 /FileEncryptorShellExtensions/x64/Debug
 /FileEncryptorShellExtensions/DecryptionShellExtension/x64/Debug
 /dist
-main.spec
-.spec
+*.spec
