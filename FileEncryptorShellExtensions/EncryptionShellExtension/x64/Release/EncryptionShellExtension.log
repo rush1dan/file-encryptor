@@ -1,0 +1,6 @@
+﻿     Creating library C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\EncryptionShellExtension.lib and object C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\EncryptionShellExtension.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 355 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  EncryptionShellExtension.vcxproj -> C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\EncryptionShellExtension.dll
