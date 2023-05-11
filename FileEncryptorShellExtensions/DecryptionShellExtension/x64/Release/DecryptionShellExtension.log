@@ -1,0 +1,34 @@
+﻿  pch.cpp
+  base64.cpp
+  customutils.cpp
+  DecryptionContextMenuHandler.cpp
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DecryptionContextMenuHandler.h(10,45): warning C4584: 'DecryptionContextMenuHandler': base-class 'IUnknown' is already a base-class of 'IShellExtInit'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\unknwnbase.h(117,9): message : see declaration of 'IUnknown'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\shobjidl_core.h(13389,5): message : see declaration of 'IShellExtInit'
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\IconBitmapUtils.h(24,2): warning C4091: 'static ': ignored on left of 'IconBitmapUtils' when no variable is declared
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DecryptionContextMenuHandler.cpp(106,35): warning C4018: '<': signed/unsigned mismatch
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DecryptionContextMenuHandler.cpp(182,56): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  DecryptionShellExtension.cpp
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DecryptionShellExtension.cpp(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DeShlExtClassFactory.h(4,37): warning C4584: 'DeShlExtClassFactory': base-class 'IUnknown' is already a base-class of 'IClassFactory'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\unknwnbase.h(117,9): message : see declaration of 'IUnknown'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\unknwnbase.h(458,5): message : see declaration of 'IClassFactory'
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DecryptionContextMenuHandler.h(10,45): warning C4584: 'DecryptionContextMenuHandler': base-class 'IUnknown' is already a base-class of 'IShellExtInit'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\unknwnbase.h(117,9): message : see declaration of 'IUnknown'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\shobjidl_core.h(13389,5): message : see declaration of 'IShellExtInit'
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DecryptionShellExtension.cpp(73,38): warning C4267: 'initializing': conversion from 'size_t' to 'DWORD', possible loss of data
+  DeShlExtClassFactory.cpp
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DeShlExtClassFactory.h(4,37): warning C4584: 'DeShlExtClassFactory': base-class 'IUnknown' is already a base-class of 'IClassFactory'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\unknwnbase.h(117,9): message : see declaration of 'IUnknown'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\unknwnbase.h(458,5): message : see declaration of 'IClassFactory'
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\DecryptionContextMenuHandler.h(10,45): warning C4584: 'DecryptionContextMenuHandler': base-class 'IUnknown' is already a base-class of 'IShellExtInit'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\unknwnbase.h(117,9): message : see declaration of 'IUnknown'
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\um\shobjidl_core.h(13389,5): message : see declaration of 'IShellExtInit'
+  IconBitmapUtils.cpp
+C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\DecryptionShellExtension\IconBitmapUtils.h(24,2): warning C4091: 'static ': ignored on left of 'IconBitmapUtils' when no variable is declared
+     Creating library C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\DecryptionShellExtension.lib and object C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\DecryptionShellExtension.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 359 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  DecryptionShellExtension.vcxproj -> C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\DecryptionShellExtension.dll
