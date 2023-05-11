@@ -6,7 +6,7 @@
 #include "DecryptionContextMenuHandler.h"
 
 HINSTANCE g_hInstance;
-const std::wstring DLL_REG_NAME = L"SimpleFileDecryptor";
+const std::wstring DLL_REG_NAME = L"EzDecryptor";
 
 UINT g_classObjCount;
 

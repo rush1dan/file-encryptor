@@ -165,9 +165,9 @@ HRESULT __stdcall EncryptionContextMenuHandler::QueryContextMenu(HMENU hmenu, UI
 
 HRESULT __stdcall EncryptionContextMenuHandler::InvokeCommand(CMINVOKECOMMANDINFO* pici)
 {
-    /*std::wstring executableName = L"main.exe";
-    std::wstring executablePath = GetModuleFileDirectory(g_hInstance) + L"\\" + executableName;*/
-    std::wstring executablePath = L"C:\\PythonProjects\\FileEnDecryptor\\dist\\main\\main.exe";
+    std::wstring executableName = L"EzEncryptor.exe";
+    std::wstring executablePath = GetModuleFileDirectory(g_hInstance) + L"\\" + executableName;
+
     std::wstring operationMode = L"--encrypt";
     std::wstring argString = operationMode;
 
