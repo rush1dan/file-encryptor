@@ -59,4 +59,23 @@ begin
   end;
 end;
 
+var
+  uninstall: Integer;
+  ResultCode: Integer;
+function InitializeUninstall: Boolean;
+begin
+  uninstall := MsgBox('Windows explorer needs to be restarted for a proper uninstall. Are you sure you want to proceed?', mbInformation, MB_OKCANCEL);
+  if uninstall = IDOK then begin
+    if Exec(ExpandConstant('{app}\RestartExplorer.bat'), '', '', 0, ewNoWait, ResultCode) then
+    begin
+      Result := True
+    end
+    else begin
+      Result := False
+    end;
+  end else begin
+    Result := False;
+  end;
+end;
+
 
