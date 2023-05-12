@@ -27,7 +27,7 @@ LicenseFile=C:\PythonProjects\FileEnDecryptor\LICENSE.md
 ;PrivilegesRequired=lowest
 OutputDir=C:\EzEncryptorTest
 OutputBaseFilename=ezencryptor_installer
-SetupIconFile=C:\Users\origi\Desktop\SetupIconMain.ico
+SetupIconFile="C:\PythonProjects\FileEnDecryptor\Resources\SetupIconMain.ico"
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -37,12 +37,26 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\EncryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver
-Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\DecryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver
+Source: "C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\EncryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver
+Source: "C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\DecryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver
+Source: "C:\PythonProjects\FileEnDecryptor\setup\RestartExplorer.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+
+[Code]
+var
+   install: Integer;
+function InitializeSetup: Boolean;
+begin
+  install := MsgBox('Be sure to Uninstall EzEncryptor first if it is already installed.', mbInformation, MB_OKCANCEL);
+  if install = IDOK then begin
+    Result := True;
+  end else begin
+    Result := False;
+  end;
+end;
 
 
