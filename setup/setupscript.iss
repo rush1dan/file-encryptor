@@ -39,7 +39,6 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\EncryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver
 Source: "C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\DecryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver
-Source: "C:\PythonProjects\FileEnDecryptor\setup\RestartExplorer.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -66,16 +65,14 @@ function InitializeUninstall: Boolean;
 begin
   uninstall := MsgBox('Windows explorer needs to be restarted for a proper uninstall. Are you sure you want to proceed?', mbInformation, MB_OKCANCEL);
   if uninstall = IDOK then begin
-    if Exec(ExpandConstant('{app}\RestartExplorer.bat'), '', '', 0, ewNoWait, ResultCode) then
-    begin
-      Result := True
-    end
-    else begin
-      Result := False
-    end;
-  end else begin
+    Result := True;
+  end else
     Result := False;
-  end;
+end;
+procedure InitializeUninstallProgressForm();
+begin
+  Exec('cmd.exe', '/c taskkill /f /im explorer.exe', '', SW_HIDE, ewNoWait, ResultCode);
+  Exec('cmd.exe', '/c start explorer.exe', '', SW_HIDE, ewNoWait, ResultCode);
 end;
 
 
