@@ -26,7 +26,7 @@ LicenseFile=C:\PythonProjects\FileEnDecryptor\LICENSE.md
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=C:\EzEncryptorTest
-OutputBaseFilename=ezencryptor_installer
+OutputBaseFilename=ezencryptor_installer_v1.0
 SetupIconFile="C:\PythonProjects\FileEnDecryptor\Resources\SetupIconMain.ico"
 Compression=lzma
 SolidCompression=yes
@@ -37,9 +37,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\EncryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver
-Source: "C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\DecryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver
-Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\EncryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver uninsrestartdelete
+Source: "C:\PythonProjects\FileEnDecryptor\FileEncryptorShellExtensions\x64\Release\DecryptionShellExtension.dll"; DestDir: "{app}"; Flags: regserver uninsrestartdelete
+Source: "C:\PythonProjects\FileEnDecryptor\dist\EzEncryptor\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs uninsrestartdelete
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -57,22 +57,3 @@ begin
     Result := False;
   end;
 end;
-
-var
-  uninstall: Integer;
-  ResultCode: Integer;
-function InitializeUninstall: Boolean;
-begin
-  uninstall := MsgBox('Windows explorer needs to be restarted for a proper uninstall. Are you sure you want to proceed?', mbInformation, MB_OKCANCEL);
-  if uninstall = IDOK then begin
-    Result := True;
-  end else
-    Result := False;
-end;
-procedure InitializeUninstallProgressForm();
-begin
-  Exec('cmd.exe', '/c taskkill /f /im explorer.exe', '', SW_HIDE, ewNoWait, ResultCode);
-  Exec('cmd.exe', '/c start explorer.exe', '', SW_HIDE, ewNoWait, ResultCode);
-end;
-
-
