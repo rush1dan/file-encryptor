@@ -11,13 +11,13 @@ EzEncryptor is a remarkably easy to use password based file encryptor GUI progra
 
 
 ## Demo
-<div height="25px"></div>
+<br>
 
 <div align="center">
 <img src="https://github.com/rush1dan/file-encryptor/blob/master/Resources/Demo/EzEncryptorDemoVid.gif?raw=true" width="100%" height="auto" alt="EzEncryptor Demo Video Gif">
 </div>
 
-<div height="50px"></div>
+<br><br>
 
 <div align="center">
 <img src="https://github.com/rush1dan/file-encryptor/blob/master/Resources/Demo/EzEncryptorDemoImg.png?raw=true" width="75%" height="auto" alt="EzEncryptor Demo Video Gif">
