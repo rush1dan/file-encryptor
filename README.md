@@ -33,3 +33,8 @@ EzEncryptor is a remarkably easy to use password based file encryptor GUI progra
 ## Installation Instructions
 
 Download the installer provided in the **Releases** section and install EzEncryptor by carefully following the onscreen prompts.
+
+
+## Supported OS
+
+Tested on windows 10 and 11.
